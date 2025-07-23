@@ -1,0 +1,20 @@
+name: "E Mart CodeQL Config"
+
+# Disable default queries to avoid conflicts with default setup
+disable-default-queries: true
+
+# Use only basic security queries
+queries:
+  - uses: security-and-quality
+
+# Include only the main application code
+paths:
+  - e_mart/
+
+# Exclude test files and other directories
+paths-ignore:
+  - e_mart/tests/
+  - e_mart/**/test_*.py
+  - mobile-app/
+  - .github/
+  - docs/ 
