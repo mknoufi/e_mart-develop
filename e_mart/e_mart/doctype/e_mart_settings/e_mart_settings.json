@@ -1,0 +1,127 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-20 09:49:21.120016",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "purchase_series_mapping",
+  "section_break_ecmj",
+  "debit_note_adjusted_account",
+  "column_break_nwjy",
+  "scrap_warehouse",
+  "column_break_bgwq",
+  "buyback_posting_account",
+  "column_break_aixl",
+  "additional_salary_component",
+  "demo_schedule_details_tab",
+  "subject",
+  "task_type",
+  "column_break_rutn",
+  "minimal_duration",
+  "escalation_duration"
+ ],
+ "fields": [
+  {
+   "fieldname": "purchase_series_mapping",
+   "fieldtype": "Table",
+   "label": "Purchase Series Mapping",
+   "options": "Purchase Series Mapping"
+  },
+  {
+   "fieldname": "debit_note_adjusted_account",
+   "fieldtype": "Link",
+   "label": "Debit Note Adjusted Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "section_break_ecmj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_nwjy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scrap_warehouse",
+   "fieldtype": "Link",
+   "label": "Scrap Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "demo_schedule_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Demo Schedule Details"
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "label": "Subject"
+  },
+  {
+   "fieldname": "task_type",
+   "fieldtype": "Link",
+   "label": "Task Type",
+   "options": "Task Type"
+  },
+  {
+   "fieldname": "column_break_rutn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "minimal_duration",
+   "fieldtype": "Int",
+   "label": "Minimal Duration"
+  },
+  {
+   "fieldname": "escalation_duration",
+   "fieldtype": "Int",
+   "label": "Escalation Duration"
+  },
+  {
+   "fieldname": "column_break_bgwq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "buyback_posting_account",
+   "fieldtype": "Link",
+   "label": "Buyback Posting Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_aixl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_salary_component",
+   "fieldtype": "Link",
+   "label": "Additional Salary Component",
+   "options": "Salary Component"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-07-23 12:40:56.440831",
+ "modified_by": "Administrator",
+ "module": "E Mart",
+ "name": "E-mart Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
