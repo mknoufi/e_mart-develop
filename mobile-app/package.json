@@ -75,10 +75,6 @@
     "react-native-masked-text": "^1.13.0",
     "react-native-currency-formatter": "^1.0.0",
     "react-native-phone-number-input": "^1.0.0",
-    "react-native-country-picker-modal": "^2.0.0",
-    "react-native-signature-canvas": "^3.0.0",
-    "react-native-signature-pad": "^0.0.8",
-    "react-native-signature-capture": "^0.4.12",
     "react-native-signature-canvas": "^3.0.0",
     "react-native-signature-pad": "^0.0.8",
     "react-native-signature-capture": "^0.4.12"

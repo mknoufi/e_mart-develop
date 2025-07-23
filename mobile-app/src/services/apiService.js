@@ -544,6 +544,23 @@ export const apiService = {
       };
     }
   },
+
+  // Token Refresh
+  refreshToken: async () => {
+    try {
+      const response = await api.post('/api/method/frappe.auth.get_cookie');
+      return {
+        success: true,
+        token: response.headers['x-frappe-csrf-token'],
+      };
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      return {
+        success: false,
+        message: 'Failed to refresh token',
+      };
+    }
+  },
 };
 
 export default apiService; 
