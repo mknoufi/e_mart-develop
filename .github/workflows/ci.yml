@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+# Add permissions for security scanning
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -79,13 +85,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Run security scan
-      uses: github/codeql-action/init@v2
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
       with:
         languages: python
     
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
   documentation:
     runs-on: ubuntu-latest
