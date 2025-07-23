@@ -1,2 +1,1 @@
-# -*- coding: utf-8 -*-
-"""Special Purchase Scheme Item DocType""" 
+"""Special Purchase Scheme Item DocType"""

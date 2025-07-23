@@ -44,8 +44,8 @@ app_include_js = "/assets/e_mart/js/e_mart.js"
 
 # include js in doctype views
 doctype_js = {
-	"Purchase Invoice" : "e_mart/custom_scripts/purchase_invoice/purchase_invoice.js",
-	"Sales Invoice" : "e_mart/custom_scripts/sales_invoice/sales_invoice.js"
+	"Purchase Invoice": "e_mart/custom_scripts/purchase_invoice/purchase_invoice.js",
+	"Sales Invoice": "e_mart/custom_scripts/sales_invoice/sales_invoice.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -144,8 +144,8 @@ doc_events = {
 	"Serial and Batch Bundle": {
 		"on_submit": [
 			"e_mart.e_mart.custom_scripts.serial_and_batch_bundle.serial_and_batch_bundle.set_purchase_category_from_voucher",
-			"e_mart.e_mart.custom_scripts.serial_and_batch_bundle.serial_and_batch_bundle.set_purchase_category_on_creation"
-		]	
+			"e_mart.e_mart.custom_scripts.serial_and_batch_bundle.serial_and_batch_bundle.set_purchase_category_on_creation",
+		]
 	},
 	"Purchase Receipt": {
 		"before_insert": "e_mart.e_mart.custom_scripts.purchase_order.purchase_order.fetch_purchase_category"
@@ -154,30 +154,28 @@ doc_events = {
 		"before_save": "e_mart.e_mart.custom_scripts.purchase_invoice.purchase_invoice.update_schema_discount_amount",
 		"on_submit": [
 			"e_mart.e_mart.custom_scripts.purchase_invoice.purchase_invoice.on_submit",
-			"e_mart.series_manager.PurchaseSeriesHandler.on_submit"
-		]
+			"e_mart.series_manager.PurchaseSeriesHandler.on_submit",
+		],
 	},
 	"Sales Invoice": {
-		"validate":[
-			  "e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.validate_buyback_fields",
-			  "e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.calculate_total_expense",
-			  "e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.calculate_profit_for_commission",
-			  "e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.generate_emi_schedule",
-			  "e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.update_emi_amount"
+		"validate": [
+			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.validate_buyback_fields",
+			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.calculate_total_expense",
+			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.calculate_profit_for_commission",
+			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.generate_emi_schedule",
+			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.update_emi_amount",
 		],
 		"on_submit": [
 			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.on_submit",
 			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.map_commission_to_sales_team",
-
 		],
-		"before_save":[
+		"before_save": [
 			"e_mart.e_mart.custom_scripts.sales_invoice.sales_invoice.map_commission_to_sales_team"
 		],
 	},
-	"Payment Entry" : {
-		"on_submit" : "e_mart.e_mart.custom_scripts.payment_entry.payment_entry.update_down_payment_status"
-	}
-	
+	"Payment Entry": {
+		"on_submit": "e_mart.e_mart.custom_scripts.payment_entry.payment_entry.update_down_payment_status"
+	},
 }
 
 # Scheduled Tasks
@@ -217,7 +215,7 @@ doc_events = {
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 override_doctype_dashboards = {
-	'Purchase Invoice': 'e_mart.e_mart.custom_scripts.purchase_invoice_dashboard.purchase_invoice_dashboard.get_data'
+	"Purchase Invoice": "e_mart.e_mart.custom_scripts.purchase_invoice_dashboard.purchase_invoice_dashboard.get_data"
 }
 
 # exempt linked doctypes from being automatically cancelled

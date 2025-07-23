@@ -1,5 +1,5 @@
-
 import frappe
+
 
 def update_down_payment_status(doc, method):
 	"""
@@ -15,4 +15,3 @@ def update_down_payment_status(doc, method):
 
 			if down_payment and down_payment_amount and doc.paid_amount == down_payment_amount:
 				frappe.db.set_value("Sales Invoice", si_name, "down_payment_paid", 1)
-

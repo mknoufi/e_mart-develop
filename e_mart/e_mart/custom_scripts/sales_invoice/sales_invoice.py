@@ -1,9 +1,8 @@
-import frappe
-from frappe.utils import flt,add_months,nowdate,get_first_day,get_last_day,add_days
-from frappe.model.mapper import get_mapped_doc
 from datetime import datetime
-from frappe.utils import flt
-from frappe.utils import get_url_to_form
+
+import frappe
+from frappe.model.mapper import get_mapped_doc
+from frappe.utils import add_days, add_months, flt, get_first_day, get_last_day, get_url_to_form, nowdate
 
 
 def on_submit(doc, method=None):
@@ -11,6 +10,7 @@ def on_submit(doc, method=None):
 	create_buyback_journal_entry(doc, method)
 	create_demo_tasks_on_submit(doc, method)
 	update_monthly_commission_log(doc, method)
+
 
 def validate_buyback_fields(doc, method=None):
 	"""
@@ -46,6 +46,7 @@ def validate_buyback_fields(doc, method=None):
 	doc.outstanding_amount = round(grand_total)
 	doc.rounded_total = round(grand_total)
 
+
 def create_scrap_stock_entry(doc, method):
 	"""
 	On submission of Sales Invoice:
@@ -69,17 +70,25 @@ def create_scrap_stock_entry(doc, method):
 
 	for row in doc.buyback_items:
 		if row.item and flt(row.qty) > 0:
-			stock_entry.append("items", {
-				"item_code": row.item,
-				"qty": row.qty,
-				"uom": "Nos",  # adjust as needed
-				"t_warehouse": scrap_warehouse,
-				"basic_rate": row.rate
-			})
+			stock_entry.append(
+				"items",
+				{
+					"item_code": row.item,
+					"qty": row.qty,
+					"uom": "Nos",  # adjust as needed
+					"t_warehouse": scrap_warehouse,
+					"basic_rate": row.rate,
+				},
+			)
 
 	stock_entry.insert()
 	stock_entry.submit()
-	frappe.msgprint(f' Scrap Stock Entry Created: <a href="{frappe.utils.get_url_to_form(stock_entry.doctype, stock_entry.name)}" target="_blank"><b>{stock_entry.name}</b></a>',alert=True,indicator='green')
+	frappe.msgprint(
+		f' Scrap Stock Entry Created: <a href="{frappe.utils.get_url_to_form(stock_entry.doctype, stock_entry.name)}" target="_blank"><b>{stock_entry.name}</b></a>',
+		alert=True,
+		indicator="green",
+	)
+
 
 def update_emi_amount(doc, method):
 	"""
@@ -88,6 +97,7 @@ def update_emi_amount(doc, method):
 	down_payment = flt(doc.down_payment_amount)
 	outstanding = flt(doc.outstanding_amount)
 	doc.emi_amount = outstanding - down_payment
+
 
 def generate_emi_schedule(doc, method):
 	"""
@@ -98,7 +108,7 @@ def generate_emi_schedule(doc, method):
 	"""
 	if doc.sales_type != "EMI":
 		return
-	if doc.is_buyback: 
+	if doc.is_buyback:
 		return
 
 	if not doc.emi_date:
@@ -116,16 +126,14 @@ def generate_emi_schedule(doc, method):
 
 	for i in range(int(doc.no_of_installment)):
 		installment_date = add_months(doc.emi_date, i)
-		doc.append("emi_duration", {
-			"date": installment_date,
-			"amount": installment_amount
-		})		
+		doc.append("emi_duration", {"date": installment_date, "amount": installment_amount})
+
 
 @frappe.whitelist()
 def create_finance_invoice(sales_invoice_name):
-	'''
+	"""
 	Create Finance Invoice from Sales Invoice
-	'''
+	"""
 	sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
 	finance_invoice = frappe.new_doc("Finance Invoice")
@@ -136,37 +144,38 @@ def create_finance_invoice(sales_invoice_name):
 	finance_invoice.total_taxes_and_charges = sales_invoice.total_taxes_and_charges
 
 	for item in sales_invoice.items:
-		finance_invoice.append("items", {
-			"actual_item": item.item_code,
-			"qty": item.qty,
-			"rate": item.rate,
-			"amount": item.amount
-		})
+		finance_invoice.append(
+			"items",
+			{"actual_item": item.item_code, "qty": item.qty, "rate": item.rate, "amount": item.amount},
+		)
 
 	for tax in sales_invoice.taxes:
-		finance_invoice.append("sales_taxes_and_charges", {
-			"charge_type": tax.charge_type,
-			"account_head": tax.account_head,
-			"description": tax.description,
-			"rate": tax.rate,
-			"tax_amount": tax.tax_amount,
-			"total": tax.total,
-			"tax_amount_after_discount_amount": tax.tax_amount_after_discount_amount
-		})
+		finance_invoice.append(
+			"sales_taxes_and_charges",
+			{
+				"charge_type": tax.charge_type,
+				"account_head": tax.account_head,
+				"description": tax.description,
+				"rate": tax.rate,
+				"tax_amount": tax.tax_amount,
+				"total": tax.total,
+				"tax_amount_after_discount_amount": tax.tax_amount_after_discount_amount,
+			},
+		)
 
 	finance_invoice.save(ignore_permissions=True)
 
 	return finance_invoice.name
 
+
 #
 @frappe.whitelist()
-
 def make_down_payment_entry(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		"""
 		Create a Payment Entry from a Sales Invoice for down payment.
 		Replaces total payment with down payment amount and map hte details.
-		
+
 		"""
 		down_payment = source.down_payment_amount
 		target.payment_type = "Receive"
@@ -187,13 +196,16 @@ def make_down_payment_entry(source_name, target_doc=None):
 		target.paid_from_account_currency = paid_from_currency
 		target.paid_to_account_currency = paid_to_currency
 
-		target.append("references", {
-			"reference_doctype": "Sales Invoice",
-			"reference_name": source.name,
-			"total_amount": source.rounded_total,
-			"outstanding_amount": source.outstanding_amount,
-			"allocated_amount": down_payment
-		})
+		target.append(
+			"references",
+			{
+				"reference_doctype": "Sales Invoice",
+				"reference_name": source.name,
+				"total_amount": source.rounded_total,
+				"outstanding_amount": source.outstanding_amount,
+				"allocated_amount": down_payment,
+			},
+		)
 
 	doc = get_mapped_doc(
 		"Sales Invoice",
@@ -201,22 +213,19 @@ def make_down_payment_entry(source_name, target_doc=None):
 		{
 			"Sales Invoice": {
 				"doctype": "Payment Entry",
-				"field_map": {
-					"customer": "party",
-					"customer_name": "party_name",
-					"company": "company"
-				}
+				"field_map": {"customer": "party", "customer_name": "party_name", "company": "company"},
 			}
 		},
 		target_doc,
-		set_missing_values
+		set_missing_values,
 	)
 	return doc
-	
+
+
 def create_buyback_journal_entry(doc, method):
-	'''
+	"""
 	Create Buyback Journal entry for Buyback amount from Sales invoice.
-	'''
+	"""
 	if not doc.is_buyback or not doc.buyback_amount or doc.buyback_amount <= 0:
 		return
 
@@ -240,20 +249,22 @@ def create_buyback_journal_entry(doc, method):
 	journal_entry.remark = f"Buyback adjustment for Sales Invoice {doc.name}"
 
 	# Credit Customer (receivable)
-	journal_entry.append("accounts", {
-		"account": customer_account,
-		"party_type": "Customer",
-		"party": doc.customer,
-		"credit_in_account_currency": doc.buyback_amount,
-		"reference_type": "Sales Invoice",
-		"reference_name": doc.name
-	})
+	journal_entry.append(
+		"accounts",
+		{
+			"account": customer_account,
+			"party_type": "Customer",
+			"party": doc.customer,
+			"credit_in_account_currency": doc.buyback_amount,
+			"reference_type": "Sales Invoice",
+			"reference_name": doc.name,
+		},
+	)
 
 	# Dedit Buyback Posting Account
-	journal_entry.append("accounts", {
-		"account": buyback_account,
-		"debit_in_account_currency": doc.buyback_amount
-	})
+	journal_entry.append(
+		"accounts", {"account": buyback_account, "debit_in_account_currency": doc.buyback_amount}
+	)
 
 	journal_entry.insert(ignore_permissions=True)
 	journal_entry.submit()
@@ -263,7 +274,11 @@ def create_buyback_journal_entry(doc, method):
 		doc.db_set("buyback_journal_entry", journal_entry.name)
 
 	frappe.msgprint(
-		f'Buyback Journal Entry Created: <a href="{frappe.utils.get_url_to_form("Journal Entry", journal_entry.name)}" target="_blank"><b>{journal_entry.name}</b></a>',alert=True,indicator='green')
+		f'Buyback Journal Entry Created: <a href="{frappe.utils.get_url_to_form("Journal Entry", journal_entry.name)}" target="_blank"><b>{journal_entry.name}</b></a>',
+		alert=True,
+		indicator="green",
+	)
+
 
 def create_demo_tasks_on_submit(doc, method=None):
 	"""
@@ -280,10 +295,7 @@ def create_demo_tasks_on_submit(doc, method=None):
 
 	for item in doc.items:
 		if item.get("is_demo_reqd"):
-			subject = task_subject_template.format(
-				item_name=item.item_name,
-				invoice_name=doc.name
-			)
+			subject = task_subject_template.format(item_name=item.item_name, invoice_name=doc.name)
 
 			exp_start_date = add_days(doc.posting_date, minimal_duration)
 			end_date = add_days(doc.posting_date, escalation_duration)
@@ -299,7 +311,7 @@ def create_demo_tasks_on_submit(doc, method=None):
 				f"Qty: {item.qty}\n"
 				f"Customer: {doc.customer}\n"
 			)
-			
+
 			task.invoice_date = doc.posting_date
 			task.invoice_reference = doc.name
 			task.customer = doc.customer
@@ -307,6 +319,7 @@ def create_demo_tasks_on_submit(doc, method=None):
 			task.exp_end_date = end_date
 
 			task.insert(ignore_permissions=True)
+
 
 def update_monthly_commission_log(doc, method):
 	"""
@@ -316,7 +329,7 @@ def update_monthly_commission_log(doc, method):
 	invoice_date = datetime.strptime(doc.posting_date, "%Y-%m-%d").date()
 	month_start = get_first_day(invoice_date)
 	month_end = get_last_day(invoice_date)
-	month_name = invoice_date.strftime('%B')
+	month_name = invoice_date.strftime("%B")
 
 	for sales_team_member in doc.sales_team:
 		sales_person = sales_team_member.sales_person
@@ -325,21 +338,13 @@ def update_monthly_commission_log(doc, method):
 		# Get the Employee linked to Sales Person
 		employee = frappe.db.get_value("Sales Person", sales_person, "employee")
 		if not employee:
-			frappe.log_error(
-				f"Sales Person {sales_person} has no linked Employee.",
-				"Monthly Commission Log"
-			)
+			frappe.log_error(f"Sales Person {sales_person} has no linked Employee.", "Monthly Commission Log")
 			continue
 
 		# Check if Monthly Commission Log exists
 		log_name = frappe.db.exists(
 			"Monthly Commission Log",
-			{
-				"employee": employee,
-				"log_month": month_name,
-				"start_date": month_start,
-				"end_date": month_end
-			}
+			{"employee": employee, "log_month": month_name, "start_date": month_start, "end_date": month_end},
 		)
 
 		if log_name:
@@ -352,20 +357,24 @@ def update_monthly_commission_log(doc, method):
 			log.end_date = month_end
 
 		# Append detail row
-		log.append("monthly_commission_log", {
-			"sales_invoice": doc.name,
-			"date": invoice_date,
-			"total_amount": doc.base_grand_total,
-			"incentives": incentives
-		})
+		log.append(
+			"monthly_commission_log",
+			{
+				"sales_invoice": doc.name,
+				"date": invoice_date,
+				"total_amount": doc.base_grand_total,
+				"incentives": incentives,
+			},
+		)
 
 		log.save(ignore_permissions=True)
 		link = get_url_to_form("Monthly Commission Log", log.name)
 		frappe.msgprint(
 			f'Monthly Commission Log Created/Updated: <a href="{link}" target="_blank"><b>{log.name}</b></a>',
 			alert=True,
-			indicator='green'
+			indicator="green",
 		)
+
 
 def calculate_total_expense(doc, method):
 	"""
@@ -377,6 +386,7 @@ def calculate_total_expense(doc, method):
 		total += flt(row.amount or 0)
 	doc.total_expense = total
 
+
 # calculate incentives based on commission rate and allocated percentage
 def map_commission_to_sales_team(doc, method):
 	"""Fetch total_commission_rate to each sales_team row as allocated_amount and compute incentives."""
@@ -387,6 +397,7 @@ def map_commission_to_sales_team(doc, method):
 		allocated_percentage = row.allocated_percentage or 0
 		row.incentive = round((commission_rate * allocated_percentage) / 100, 2)
 
+
 def calculate_profit_for_commission(doc, method):
 	"""Calculates profit for commission for each item by subtracting its Sales Expense Contribution from the total expense."""
 	total_expense = flt(doc.total_expense or 0)
@@ -395,4 +406,3 @@ def calculate_profit_for_commission(doc, method):
 		contribution = flt(item.sales_expense_contribution or 0)
 		profit = total_expense - contribution
 		item.profit_for_commission = profit
-
