@@ -1,0 +1,179 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-23 11:19:59.187952",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "scheme_name",
+  "scheme_code",
+  "description",
+  "valid_from",
+  "valid_to",
+  "is_active",
+  "discount_type",
+  "discount_percentage",
+  "discount_amount",
+  "minimum_purchase_amount",
+  "maximum_discount_amount",
+  "applicable_items",
+  "applicable_suppliers",
+  "terms_and_conditions"
+ ],
+ "fields": [
+  {
+   "fieldname": "scheme_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Scheme Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Scheme Code",
+   "description": "Unique code for the scheme",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Description",
+   "description": "Detailed description of the scheme"
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Valid From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "valid_to",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Valid To",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active",
+   "description": "Check if this scheme is currently active"
+  },
+  {
+   "fieldname": "discount_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Discount Type",
+   "options": "Percentage\nFixed Amount",
+   "default": "Percentage",
+   "reqd": 1
+  },
+  {
+   "fieldname": "discount_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Discount Percentage",
+   "depends_on": "eval:doc.discount_type == 'Percentage'",
+   "description": "Discount percentage to be applied"
+  },
+  {
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Discount Amount",
+   "depends_on": "eval:doc.discount_type == 'Fixed Amount'",
+   "description": "Fixed discount amount"
+  },
+  {
+   "fieldname": "minimum_purchase_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Minimum Purchase Amount",
+   "description": "Minimum purchase amount to qualify for this scheme"
+  },
+  {
+   "fieldname": "maximum_discount_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Maximum Discount Amount",
+   "description": "Maximum discount amount that can be applied"
+  },
+  {
+   "fieldname": "applicable_items",
+   "fieldtype": "Table",
+   "label": "Applicable Items",
+   "options": "Special Purchase Scheme Item",
+   "description": "Items that qualify for this scheme"
+  },
+  {
+   "fieldname": "applicable_suppliers",
+   "fieldtype": "Table",
+   "label": "Applicable Suppliers",
+   "options": "Special Purchase Scheme Supplier",
+   "description": "Suppliers that can offer this scheme"
+  },
+  {
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions",
+   "description": "Terms and conditions for this scheme"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-24 14:40:25.713560",
+ "modified_by": "Administrator",
+ "module": "E Mart",
+ "name": "Special Purchase Scheme",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+} 

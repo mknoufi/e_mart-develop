@@ -152,7 +152,10 @@ doc_events = {
 	},
 	"Purchase Invoice": {
 		"before_save": "e_mart.e_mart.custom_scripts.purchase_invoice.purchase_invoice.update_schema_discount_amount",
-		"on_submit": "e_mart.e_mart.custom_scripts.purchase_invoice.purchase_invoice.on_submit"
+		"on_submit": [
+			"e_mart.e_mart.custom_scripts.purchase_invoice.purchase_invoice.on_submit",
+			"e_mart.series_manager.PurchaseSeriesHandler.on_submit"
+		]
 	},
 	"Sales Invoice": {
 		"validate":[
