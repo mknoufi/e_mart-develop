@@ -1,0 +1,1 @@
+"""Special Purchase Scheme DocType"""

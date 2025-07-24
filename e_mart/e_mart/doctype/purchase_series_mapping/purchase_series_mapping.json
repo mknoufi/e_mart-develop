@@ -7,7 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "purchase_category",
-  "clear_tax"
+  "series_prefix",
+  "series_start",
+  "series_current",
+  "series_format",
+  "clear_tax",
+  "description"
  ],
  "fields": [
   {
@@ -15,7 +20,44 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Purchase Category",
-   "options": "Normal\nSpecial"
+   "options": "Normal\nSpecial",
+   "reqd": 1
+  },
+  {
+   "fieldname": "series_prefix",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Series Prefix",
+   "description": "Prefix for the series (e.g., NORM, SPEC)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "series_start",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Series Start Number",
+   "default": "1",
+   "description": "Starting number for the series",
+   "reqd": 1
+  },
+  {
+   "fieldname": "series_current",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Current Series Number",
+   "default": "1",
+   "description": "Current number in the series (auto-updated)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "series_format",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Series Format",
+   "options": "YYYYMMDD-####\nYYYY-####\nMM-####\n####\nCustom",
+   "default": "YYYYMMDD-####",
+   "description": "Format for the series number",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -23,6 +65,13 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Is Taxable"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Description",
+   "description": "Description of this series mapping"
   }
  ],
  "grid_page_length": 50,

@@ -5,8 +5,8 @@
 Pytest configuration for E Mart app tests
 """
 
-import pytest
 import frappe
+import pytest
 from frappe.tests.utils import FrappeTestCase
 
 
@@ -25,21 +25,21 @@ def test_doc():
 
 class BaseTestCase(FrappeTestCase):
 	"""Base test case for E Mart app tests"""
-	
+
 	def setUp(self):
 		"""Set up test environment"""
 		super().setUp()
 		frappe.clear_cache()
-	
+
 	def tearDown(self):
 		"""Clean up test environment"""
 		frappe.clear_cache()
 		super().tearDown()
-	
+
 	def create_test_data(self):
 		"""Create test data for tests"""
 		pass
-	
+
 	def cleanup_test_data(self):
 		"""Clean up test data"""
-		pass 
+		pass

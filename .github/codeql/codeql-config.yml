@@ -1,0 +1,26 @@
+name: "E Mart Advanced CodeQL Config"
+
+# This is an advanced configuration - no default setup
+# Disable default queries completely
+disable-default-queries: true
+
+# Define custom queries for Python
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+
+# Define the language explicitly
+languages:
+  - python
+
+# Include only the main application code
+paths:
+  - e_mart/
+
+# Exclude test files and other directories
+paths-ignore:
+  - e_mart/tests/
+  - e_mart/**/test_*.py
+  - mobile-app/
+  - .github/
+  - docs/ 

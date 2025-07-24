@@ -1,0 +1,480 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Series Management Dashboard") }}{% endblock %}
+
+{% block page_content %}
+<div class="e-mart-page-container">
+    <!-- Header Section -->
+    <div class="e-mart-page-header">
+        <div class="e-mart-page-title">
+            <h1>{{ _("Series Management Dashboard") }}</h1>
+            <p>{{ _("Manage and monitor your purchase series numbers") }}</p>
+        </div>
+        <div class="e-mart-page-actions">
+            <button class="e-mart-btn e-mart-btn-primary" onclick="createNewSeries()">
+                <i class="fa fa-plus"></i> {{ _("New Series") }}
+            </button>
+            <button class="e-mart-btn e-mart-btn-outline" onclick="refreshDashboard()">
+                <i class="fa fa-refresh"></i> {{ _("Refresh") }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Dashboard -->
+    <div class="series-dashboard e-mart-fade-in">
+        <div class="series-dashboard-header">
+            <h2>{{ _("Series Overview") }}</h2>
+            <p>{{ _("Real-time statistics and monitoring") }}</p>
+        </div>
+        
+        <div class="series-stats">
+            <div class="series-stat-card e-mart-animate-on-scroll">
+                <div class="series-stat-icon">
+                    <i class="fa fa-shopping-cart"></i>
+                </div>
+                <div class="series-stat-number" id="normal-series-count">0</div>
+                <div class="series-stat-label">{{ _("Normal Purchases") }}</div>
+            </div>
+            
+            <div class="series-stat-card e-mart-animate-on-scroll">
+                <div class="series-stat-icon">
+                    <i class="fa fa-star"></i>
+                </div>
+                <div class="series-stat-number" id="special-series-count">0</div>
+                <div class="series-stat-label">{{ _("Special Purchases") }}</div>
+            </div>
+            
+            <div class="series-stat-card e-mart-animate-on-scroll">
+                <div class="series-stat-icon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <div class="series-stat-number" id="today-series-count">0</div>
+                <div class="series-stat-label">{{ _("Today's Series") }}</div>
+            </div>
+            
+            <div class="series-stat-card e-mart-animate-on-scroll">
+                <div class="series-stat-icon">
+                    <i class="fa fa-chart-line"></i>
+                </div>
+                <div class="series-stat-number" id="total-series-count">0</div>
+                <div class="series-stat-label">{{ _("Total Series") }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Series Management Section -->
+    <div class="e-mart-grid e-mart-grid-2">
+        <!-- Normal Series Management -->
+        <div class="e-mart-card e-mart-animate-on-scroll">
+            <div class="e-mart-card-header">
+                <h3><i class="fa fa-shopping-cart"></i> {{ _("Normal Series") }}</h3>
+                <span class="e-mart-badge e-mart-badge-primary">{{ _("Active") }}</span>
+            </div>
+            <div class="e-mart-card-body">
+                <div class="series-info-display">
+                    <div class="series-info-item">
+                        <label>{{ _("Current Series") }}:</label>
+                        <span class="series-number" id="normal-current-series">NORM-20250630-0001</span>
+                    </div>
+                    <div class="series-info-item">
+                        <label>{{ _("Next Series") }}:</label>
+                        <span class="series-number" id="normal-next-series">NORM-20250630-0002</span>
+                    </div>
+                    <div class="series-info-item">
+                        <label>{{ _("Format") }}:</label>
+                        <span>YYYYMMDD-####</span>
+                    </div>
+                </div>
+                
+                <div class="series-actions">
+                    <button class="series-btn-generate" onclick="generateNormalSeries()">
+                        <i class="fa fa-magic"></i> {{ _("Generate") }}
+                    </button>
+                    <button class="series-btn-reset" onclick="resetNormalSeries()">
+                        <i class="fa fa-refresh"></i> {{ _("Reset") }}
+                    </button>
+                    <button class="series-btn-info" onclick="showNormalSeriesInfo()">
+                        <i class="fa fa-info-circle"></i> {{ _("Info") }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Series Management -->
+        <div class="e-mart-card e-mart-animate-on-scroll">
+            <div class="e-mart-card-header">
+                <h3><i class="fa fa-star"></i> {{ _("Special Series") }}</h3>
+                <span class="e-mart-badge e-mart-badge-warning">{{ _("Active") }}</span>
+            </div>
+            <div class="e-mart-card-body">
+                <div class="series-info-display">
+                    <div class="series-info-item">
+                        <label>{{ _("Current Series") }}:</label>
+                        <span class="series-number" id="special-current-series">SPEC-20250630-0001</span>
+                    </div>
+                    <div class="series-info-item">
+                        <label>{{ _("Next Series") }}:</label>
+                        <span class="series-number" id="special-next-series">SPEC-20250630-0002</span>
+                    </div>
+                    <div class="series-info-item">
+                        <label>{{ _("Format") }}:</label>
+                        <span>YYYYMMDD-####</span>
+                    </div>
+                </div>
+                
+                <div class="series-actions">
+                    <button class="series-btn-generate" onclick="generateSpecialSeries()">
+                        <i class="fa fa-magic"></i> {{ _("Generate") }}
+                    </button>
+                    <button class="series-btn-reset" onclick="resetSpecialSeries()">
+                        <i class="fa fa-refresh"></i> {{ _("Reset") }}
+                    </button>
+                    <button class="series-btn-info" onclick="showSpecialSeriesInfo()">
+                        <i class="fa fa-info-circle"></i> {{ _("Info") }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Series Activity -->
+    <div class="e-mart-card e-mart-animate-on-scroll">
+        <div class="e-mart-card-header">
+            <h3><i class="fa fa-history"></i> {{ _("Recent Series Activity") }}</h3>
+        </div>
+        <div class="e-mart-card-body">
+            <div class="table-responsive">
+                <table class="e-mart-table" id="recent-series-table">
+                    <thead>
+                        <tr>
+                            <th>{{ _("Series Number") }}</th>
+                            <th>{{ _("Type") }}</th>
+                            <th>{{ _("Document") }}</th>
+                            <th>{{ _("Generated On") }}</th>
+                            <th>{{ _("Status") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-series-tbody">
+                        <!-- Data will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Special Purchase Schemes -->
+    <div class="e-mart-card e-mart-animate-on-scroll">
+        <div class="e-mart-card-header">
+            <h3><i class="fa fa-tags"></i> {{ _("Active Special Purchase Schemes") }}</h3>
+        </div>
+        <div class="e-mart-card-body">
+            <div class="e-mart-grid e-mart-grid-3" id="schemes-grid">
+                <!-- Scheme cards will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles for this page -->
+<style>
+.e-mart-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.e-mart-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--e-mart-border);
+}
+
+.e-mart-page-title h1 {
+    margin: 0;
+    color: var(--e-mart-dark);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.e-mart-page-title p {
+    margin: 0.5rem 0 0 0;
+    color: var(--e-mart-secondary);
+}
+
+.e-mart-page-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.series-info-display {
+    margin-bottom: 1.5rem;
+}
+
+.series-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--e-mart-border);
+}
+
+.series-info-item:last-child {
+    border-bottom: none;
+}
+
+.series-info-item label {
+    font-weight: 500;
+    color: var(--e-mart-secondary);
+}
+
+.series-number {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--e-mart-primary);
+    background: rgba(37, 99, 235, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.series-stat-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .e-mart-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .e-mart-page-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+</style>
+
+<!-- JavaScript for Dashboard Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    setupAutoRefresh();
+});
+
+function loadDashboardData() {
+    // Load series statistics
+    loadSeriesStats();
+    
+    // Load recent activity
+    loadRecentActivity();
+    
+    // Load special schemes
+    loadSpecialSchemes();
+}
+
+function loadSeriesStats() {
+    // Simulate API call for stats
+    setTimeout(() => {
+        document.getElementById('normal-series-count').textContent = '1,247';
+        document.getElementById('special-series-count').textContent = '89';
+        document.getElementById('today-series-count').textContent = '23';
+        document.getElementById('total-series-count').textContent = '1,336';
+    }, 500);
+}
+
+function loadRecentActivity() {
+    const recentData = [
+        {
+            series: 'NORM-20250630-0005',
+            type: 'Normal',
+            document: 'Purchase Invoice',
+            date: '2025-06-30 14:30',
+            status: 'Active'
+        },
+        {
+            series: 'SPEC-20250630-0003',
+            type: 'Special',
+            document: 'Purchase Invoice',
+            date: '2025-06-30 13:45',
+            status: 'Active'
+        },
+        {
+            series: 'NORM-20250630-0004',
+            type: 'Normal',
+            document: 'Purchase Order',
+            date: '2025-06-30 12:15',
+            status: 'Active'
+        }
+    ];
+    
+    const tbody = document.getElementById('recent-series-tbody');
+    tbody.innerHTML = '';
+    
+    recentData.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="series-number">${item.series}</span></td>
+            <td><span class="e-mart-badge e-mart-badge-${item.type === 'Normal' ? 'primary' : 'warning'}">${item.type}</span></td>
+            <td>${item.document}</td>
+            <td>${item.date}</td>
+            <td><span class="e-mart-badge e-mart-badge-success">${item.status}</span></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function loadSpecialSchemes() {
+    const schemesData = [
+        {
+            name: 'Summer Electronics Sale',
+            code: 'SUMMER2025',
+            discount: '15%',
+            validFrom: '2025-06-01',
+            validTo: '2025-08-31',
+            status: 'Active'
+        },
+        {
+            name: 'Bulk Purchase Discount',
+            code: 'BULK2025',
+            discount: '20%',
+            validFrom: '2025-05-01',
+            validTo: '2025-12-31',
+            status: 'Active'
+        },
+        {
+            name: 'New Customer Offer',
+            code: 'NEWCUST2025',
+            discount: '10%',
+            validFrom: '2025-01-01',
+            validTo: '2025-12-31',
+            status: 'Active'
+        }
+    ];
+    
+    const grid = document.getElementById('schemes-grid');
+    grid.innerHTML = '';
+    
+    schemesData.forEach(scheme => {
+        const card = document.createElement('div');
+        card.className = 'scheme-card';
+        card.innerHTML = `
+            <div class="scheme-card-header">
+                <div class="scheme-name">${scheme.name}</div>
+                <div class="scheme-code">${scheme.code}</div>
+            </div>
+            <div class="scheme-card-body">
+                <div class="scheme-discount">${scheme.discount} Discount</div>
+                <div class="scheme-details">
+                    <div class="scheme-detail">
+                        <div class="scheme-detail-label">Valid From</div>
+                        <div class="scheme-detail-value">${scheme.validFrom}</div>
+                    </div>
+                    <div class="scheme-detail">
+                        <div class="scheme-detail-label">Valid To</div>
+                        <div class="scheme-detail-value">${scheme.validTo}</div>
+                    </div>
+                </div>
+                <div class="scheme-status">
+                    <div class="scheme-status-indicator">
+                        <div class="scheme-status-dot ${scheme.status === 'Active' ? '' : 'inactive'}"></div>
+                        <span>${scheme.status}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function setupAutoRefresh() {
+    // Refresh dashboard every 30 seconds
+    setInterval(() => {
+        loadDashboardData();
+    }, 30000);
+}
+
+// Series Management Functions
+function generateNormalSeries() {
+    if (window.eMartSeriesUI) {
+        window.eMartSeriesUI.handleSeriesGeneration({ target: document.querySelector('.series-btn-generate') });
+    }
+}
+
+function generateSpecialSeries() {
+    if (window.eMartSeriesUI) {
+        window.eMartSeriesUI.handleSeriesGeneration({ target: document.querySelectorAll('.series-btn-generate')[1] });
+    }
+}
+
+function resetNormalSeries() {
+    if (window.eMartSeriesUI) {
+        window.eMartSeriesUI.handleSeriesReset({ target: document.querySelector('.series-btn-reset') });
+    }
+}
+
+function resetSpecialSeries() {
+    if (window.eMartSeriesUI) {
+        window.eMartSeriesUI.handleSeriesReset({ target: document.querySelectorAll('.series-btn-reset')[1] });
+    }
+}
+
+function showNormalSeriesInfo() {
+    if (window.eMartSeriesUI) {
+        window.eMartSeriesUI.handleSeriesInfo({ target: document.querySelector('.series-btn-info') });
+    }
+}
+
+function showSpecialSeriesInfo() {
+    if (window.eMartSeriesUI) {
+        window.eMartSeriesUI.handleSeriesInfo({ target: document.querySelectorAll('.series-btn-info')[1] });
+    }
+}
+
+function createNewSeries() {
+    if (window.eMartUI) {
+        window.eMartUI.showModal({
+            title: 'Create New Series',
+            content: `
+                <div class="e-mart-form-group">
+                    <label class="e-mart-form-label">Series Name</label>
+                    <input type="text" class="e-mart-form-input" placeholder="Enter series name">
+                </div>
+                <div class="e-mart-form-group">
+                    <label class="e-mart-form-label">Series Prefix</label>
+                    <input type="text" class="e-mart-form-input" placeholder="e.g., NORM, SPEC">
+                </div>
+                <div class="e-mart-form-group">
+                    <label class="e-mart-form-label">Series Format</label>
+                    <select class="e-mart-form-select">
+                        <option value="YYYYMMDD-####">YYYYMMDD-####</option>
+                        <option value="YYYY-####">YYYY-####</option>
+                        <option value="MM-####">MM-####</option>
+                        <option value="####">####</option>
+                    </select>
+                </div>
+            `,
+            footer: `
+                <button class="e-mart-btn e-mart-btn-primary">Create Series</button>
+                <button class="e-mart-btn e-mart-btn-secondary" onclick="eMartUI.hideModal(document.querySelector('.e-mart-modal'))">Cancel</button>
+            `
+        });
+    }
+}
+
+function refreshDashboard() {
+    loadDashboardData();
+    if (window.eMartUI) {
+        window.eMartUI.showToast('Dashboard refreshed successfully!', 'success');
+    }
+}
+</script>
+{% endblock %} 

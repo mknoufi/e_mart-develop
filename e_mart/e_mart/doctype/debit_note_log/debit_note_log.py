@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 
+
 class DebitNoteLog(Document):
 	def on_submit(self):
 		if self.workflow_state == "Approved":
@@ -11,11 +12,11 @@ class DebitNoteLog(Document):
 
 	def on_update(self):
 		self.sync_status_with_workflow()
-	
+
 	def create_journal_entry(self):
-		'''
+		"""
 		Creates a Journal Entry for the discounted amount in the Debit Note Log
-		'''
+		"""
 		if not self.discounted_amount or self.discounted_amount <= 0:
 			frappe.throw("Discounted Amount must be greater than 0.")
 
@@ -26,12 +27,8 @@ class DebitNoteLog(Document):
 
 		supplier_account = frappe.db.get_value(
 			"Party Account",
-			{
-				"parent": self.supplier,
-				"parenttype": "Supplier",
-				"company": company
-			},
-			"account"
+			{"parent": self.supplier, "parenttype": "Supplier", "company": company},
+			"account",
 		)
 
 		if not supplier_account:
@@ -46,23 +43,27 @@ class DebitNoteLog(Document):
 		je.voucher_type = "Debit Note"
 		je.posting_date = frappe.utils.nowdate()
 		je.company = company
-		je.remark = f"Auto-created from Debit Note Log {self.name} for Purchase Invoice {self.purchase_invoice}"
+		je.remark = (
+			f"Auto-created from Debit Note Log {self.name} for Purchase Invoice {self.purchase_invoice}"
+		)
 
 		# Debit Supplier
-		je.append("accounts", {
-			"account": supplier_account,
-			"party_type": "Supplier",
-			"party": self.supplier,
-			"debit_in_account_currency": self.discounted_amount,
-			"reference_type": "Purchase Invoice",
-			"reference_name": self.purchase_invoice
-		})
+		je.append(
+			"accounts",
+			{
+				"account": supplier_account,
+				"party_type": "Supplier",
+				"party": self.supplier,
+				"debit_in_account_currency": self.discounted_amount,
+				"reference_type": "Purchase Invoice",
+				"reference_name": self.purchase_invoice,
+			},
+		)
 
 		# Credit Adjusted Account
-		je.append("accounts", {
-			"account": adjusted_account,
-			"credit_in_account_currency": self.discounted_amount
-		})
+		je.append(
+			"accounts", {"account": adjusted_account, "credit_in_account_currency": self.discounted_amount}
+		)
 
 		je.insert(ignore_permissions=True)
 		je.submit()
