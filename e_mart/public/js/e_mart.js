@@ -144,12 +144,20 @@ class EMartUI {
     showToast(message, type = 'info', duration = 3000) {
         const toast = document.createElement('div');
         toast.className = `e-mart-toast e-mart-toast-${type} e-mart-fade-in`;
-        toast.innerHTML = `
-            <div class="e-mart-toast-content">
-                <span class="e-mart-toast-message">${message}</span>
-                <button class="e-mart-toast-close">&times;</button>
-            </div>
-        `;
+        const toastContent = document.createElement('div');
+        toastContent.className = 'e-mart-toast-content';
+        
+        const toastMessage = document.createElement('span');
+        toastMessage.className = 'e-mart-toast-message';
+        toastMessage.textContent = message; // Escape message to prevent XSS
+        
+        const toastCloseButton = document.createElement('button');
+        toastCloseButton.className = 'e-mart-toast-close';
+        toastCloseButton.textContent = '×'; // Escape close button text
+        
+        toastContent.appendChild(toastMessage);
+        toastContent.appendChild(toastCloseButton);
+        toast.appendChild(toastContent);
         
         this.toastContainer.appendChild(toast);
         
