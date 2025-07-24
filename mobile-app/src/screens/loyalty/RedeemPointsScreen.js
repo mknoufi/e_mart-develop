@@ -24,8 +24,27 @@ const RedeemPointsScreen = ({ navigation, route }) => {
   const [remarks, setRemarks] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const quickRedeemAmounts = [10, 50, 100, 250, 500];
+  const [quickRedeemAmounts, setQuickRedeemAmounts] = useState([]);
 
+  useEffect(() => {
+    const fetchQuickRedeemAmounts = async () => {
+      try {
+        const response = await api.get('/api/method/e_mart.api.get_quick_redeem_amounts');
+        if (response.data.success && Array.isArray(response.data.data.amounts)) {
+          const validAmounts = response.data.data.amounts.filter(amount => typeof amount === 'number' && amount > 0);
+          setQuickRedeemAmounts(validAmounts);
+        } else {
+          console.warn('Invalid or missing quick redeem amounts from API');
+          setQuickRedeemAmounts([10, 50, 100, 250, 500]); // Fallback values
+        }
+      } catch (error) {
+        console.error('Error fetching quick redeem amounts:', error);
+        setQuickRedeemAmounts([10, 50, 100, 250, 500]); // Fallback values
+      }
+    };
+
+    fetchQuickRedeemAmounts();
+  }, []);
   const handleRedeem = async () => {
     const points = parseFloat(pointsToRedeem);
     
