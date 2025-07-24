@@ -51,9 +51,15 @@ class SeriesManager:
 
 			return next_series
 
+		except frappe.exceptions.DoesNotExistError as e:
+			frappe.log_error(f"Series mapping not found: {e!s}", "Series Manager Error")
+			frappe.throw(_("No series mapping found for the specified category: {0}").format(str(e)))
+		except ValueError as e:
+			frappe.log_error(f"Invalid value encountered: {e!s}", "Series Manager Error")
+			frappe.throw(_("Failed to generate series number due to invalid value: {0}").format(str(e)))
 		except Exception as e:
-			frappe.log_error(f"Series generation failed: {e!s}", "Series Manager Error")
-			frappe.throw(_("Failed to generate series number: {0}").format(str(e)))
+			frappe.log_error(f"Unexpected error during series generation: {e!s}", "Series Manager Error")
+			frappe.throw(_("An unexpected error occurred while generating series number: {0}").format(str(e)))
 
 	@staticmethod
 	def _generate_series_number(mapping):
