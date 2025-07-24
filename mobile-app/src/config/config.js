@@ -1,7 +1,10 @@
 // E Mart Mobile App Configuration
 
 // API Configuration
-export const API_BASE_URL = process.env.API_BASE_URL || 'https://your-erpnext-server.com';
+if (!process.env.API_BASE_URL) {
+  throw new Error("API_BASE_URL environment variable is required but not set.");
+}
+export const API_BASE_URL = process.env.API_BASE_URL;
 
 // App Configuration
 export const APP_CONFIG = {
