@@ -430,7 +430,10 @@ def calculate_total_profit(doc):
 		# Calculate profit: Sales Amount - Purchase Cost - Expenses
 		total_profit = grand_total - total_purchase_cost - total_expense
 		
-		return max(0, total_profit)  # Ensure profit is not negative for loyalty calculation
+		# Ensure profit is not negative for loyalty calculation.
+		# Loyalty points are only awarded for positive profits to incentivize profitable transactions.
+		# This prevents loyalty points from being awarded in cases where the company incurs a loss.
+		return max(0, total_profit)
 	except Exception as e:
 		frappe.log_error(f"Error calculating total profit: {e!s}", "Profit Calculation Error")
 		return 0
