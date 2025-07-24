@@ -187,6 +187,19 @@ const LoyaltyPointsScreen = ({ navigation, route }) => {
               <Text style={styles.statLabel}>Program</Text>
             </View>
           </View>
+          
+          {loyaltyData.tier_info?.calculation_basis && (
+            <View style={styles.calculationBasisContainer}>
+              <Icon 
+                name={loyaltyData.tier_info.calculation_basis === 'Profit' ? 'chart-line' : 'currency-usd'} 
+                size={16} 
+                color={theme.colors.secondary} 
+              />
+              <Text style={styles.calculationBasisText}>
+                Points calculated based on {loyaltyData.tier_info.calculation_basis.toLowerCase()}
+              </Text>
+            </View>
+          )}
         </Card.Content>
       </Card>
 
@@ -340,6 +353,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     marginTop: 4,
+  },
+  calculationBasisContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  calculationBasisText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginLeft: 4,
+    fontStyle: 'italic',
   },
   tierCard: {
     marginBottom: 16,

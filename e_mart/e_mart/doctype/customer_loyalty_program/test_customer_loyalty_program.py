@@ -115,6 +115,28 @@ class TestCustomerLoyaltyProgram(unittest.TestCase):
 		self.assertEqual(default_program.program_name, "Test Default Program")
 		self.assertEqual(default_program.conversion_factor, 1.5)
 
+	def test_points_calculation_basis(self):
+		"""Test loyalty program with different calculation basis"""
+		# Test Total Amount basis (default)
+		program1 = frappe.new_doc("Customer Loyalty Program")
+		program1.program_name = "Test Total Amount Program"
+		program1.loyalty_program_type = "Single Tier Program"
+		program1.points_calculation_basis = "Total Amount"
+		program1.conversion_factor = 1.0
+		program1.save()
+
+		self.assertEqual(getattr(program1, 'points_calculation_basis', 'Total Amount'), "Total Amount")
+
+		# Test Profit basis
+		program2 = frappe.new_doc("Customer Loyalty Program")
+		program2.program_name = "Test Profit Program"
+		program2.loyalty_program_type = "Single Tier Program"
+		program2.points_calculation_basis = "Profit"
+		program2.conversion_factor = 2.0
+		program2.save()
+
+		self.assertEqual(program2.points_calculation_basis, "Profit")
+
 
 if __name__ == "__main__":
 	unittest.main()

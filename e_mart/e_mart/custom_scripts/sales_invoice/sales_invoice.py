@@ -409,6 +409,33 @@ def calculate_profit_for_commission(doc, method):
 		item.profit_for_commission = profit
 
 
+def calculate_total_profit(doc):
+	"""Calculate total profit for the sales invoice.
+	Profit = Grand Total - Total Purchase Cost - Total Expenses
+	"""
+	try:
+		grand_total = flt(doc.grand_total or 0)
+		total_expense = flt(doc.total_expense or 0)
+		
+		# Calculate total purchase cost from items
+		total_purchase_cost = 0
+		for item in doc.items:
+			if item.item_code:
+				# Get the average purchase cost from Item master or use standard rate
+				purchase_rate = frappe.db.get_value("Item", item.item_code, "last_purchase_rate") or 0
+				if not purchase_rate:
+					purchase_rate = frappe.db.get_value("Item", item.item_code, "valuation_rate") or 0
+				total_purchase_cost += flt(purchase_rate) * flt(item.qty or 0)
+		
+		# Calculate profit: Sales Amount - Purchase Cost - Expenses
+		total_profit = grand_total - total_purchase_cost - total_expense
+		
+		return max(0, total_profit)  # Ensure profit is not negative for loyalty calculation
+	except Exception as e:
+		frappe.log_error(f"Error calculating total profit: {e!s}", "Profit Calculation Error")
+		return 0
+
+
 def create_loyalty_points_transaction(doc, method=None):
 	"""Create loyalty points transaction when sales invoice is submitted"""
 	try:
@@ -430,7 +457,20 @@ def create_loyalty_points_transaction(doc, method=None):
 		if not loyalty_program:
 			return
 
-		# Check minimum spent amount
+		# Get loyalty program document to check calculation basis
+		loyalty_program_doc = frappe.get_doc("Customer Loyalty Program", loyalty_program.name)
+		
+		# Determine calculation amount based on program configuration
+		calculation_basis = getattr(loyalty_program_doc, 'points_calculation_basis', 'Total Amount')
+		
+		if calculation_basis == "Profit":
+			calculation_amount = calculate_total_profit(doc)
+			basis_display = "profit"
+		else:
+			calculation_amount = flt(doc.grand_total)
+			basis_display = "total amount"
+
+		# Check minimum spent amount (still based on grand total for eligibility)
 		if flt(doc.grand_total) < flt(loyalty_program.get("minimum_spent_amount", 0)):
 			return
 
@@ -438,13 +478,12 @@ def create_loyalty_points_transaction(doc, method=None):
 		customer_summary = get_customer_loyalty_points(doc.customer)
 		total_spent = flt(customer_summary.get("total_spent", 0)) + flt(doc.grand_total)
 
-		# Get loyalty program document to calculate tier factor
-		loyalty_program_doc = frappe.get_doc("Customer Loyalty Program", loyalty_program.name)
+		# Get tier factor and name
 		tier_factor = loyalty_program_doc.get_tier_factor(total_spent)
 		tier_name = loyalty_program_doc.get_tier_name(total_spent)
 
-		# Calculate loyalty points
-		points_earned = flt(doc.grand_total) * flt(tier_factor)
+		# Calculate loyalty points using the selected calculation basis
+		points_earned = flt(calculation_amount) * flt(tier_factor)
 
 		# Create loyalty points transaction
 		if points_earned > 0:
@@ -454,16 +493,16 @@ def create_loyalty_points_transaction(doc, method=None):
 				points=points_earned,
 				transaction_type="Earned",
 				sales_invoice=doc.name,
-				remarks=f"Points earned from Sales Invoice {doc.name} (Tier: {tier_name})"
+				remarks=f"Points earned from Sales Invoice {doc.name} based on {basis_display} (Tier: {tier_name})"
 			)
 
 			# Update the loyalty transaction with tier information
 			loyalty_transaction.tier_achieved = tier_name
 			loyalty_transaction.save()
 
-			# Show success message
+			# Show success message with calculation basis
 			frappe.msgprint(
-				f'🎉 Customer earned {points_earned:.1f} loyalty points! (Tier: {tier_name})',
+				f'🎉 Customer earned {points_earned:.1f} loyalty points based on {basis_display}! (Tier: {tier_name})',
 				alert=True,
 				indicator="green"
 			)

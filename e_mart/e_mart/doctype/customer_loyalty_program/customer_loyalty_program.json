@@ -14,6 +14,7 @@
   "to_date",
   "section_break_2",
   "loyalty_program_type",
+  "points_calculation_basis",
   "conversion_factor",
   "column_break_2",
   "expense_account",
@@ -81,6 +82,14 @@
    "fieldtype": "Select",
    "label": "Loyalty Program Type",
    "options": "Single Tier Program\nMultiple Tier Program"
+  },
+  {
+   "default": "Total Amount",
+   "description": "Choose whether to calculate points based on total amount or profit",
+   "fieldname": "points_calculation_basis",
+   "fieldtype": "Select",
+   "label": "Points Calculation Basis",
+   "options": "Total Amount\nProfit"
   },
   {
    "default": "1",

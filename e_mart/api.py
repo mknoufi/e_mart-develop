@@ -925,7 +925,8 @@ def get_customer_loyalty_summary(customer):
 				"current_tier": loyalty_program_doc.get_tier_name(loyalty_summary.get("total_spent", 0)),
 				"conversion_factor": loyalty_program_doc.get_tier_factor(loyalty_summary.get("total_spent", 0)),
 				"program_name": loyalty_program_doc.program_name,
-				"program_type": loyalty_program_doc.loyalty_program_type
+				"program_type": loyalty_program_doc.loyalty_program_type,
+				"calculation_basis": getattr(loyalty_program_doc, 'points_calculation_basis', 'Total Amount')
 			}
 
 			# Add tier thresholds for multiple tier programs
@@ -1023,7 +1024,7 @@ def redeem_loyalty_points(customer, points_to_redeem, remarks=None):
 
 
 @frappe.whitelist()
-def calculate_loyalty_points_preview(customer, invoice_amount):
+def calculate_loyalty_points_preview(customer, invoice_amount, profit_amount=None):
 	"""Calculate loyalty points preview for a potential invoice"""
 	try:
 		from e_mart.e_mart.doctype.customer_loyalty_program.customer_loyalty_program import (
@@ -1042,13 +1043,14 @@ def calculate_loyalty_points_preview(customer, invoice_amount):
 		if not loyalty_program:
 			return {"success": False, "message": "No loyalty program found for customer"}
 
-		# Check minimum spent amount
+		# Check minimum spent amount (still based on invoice amount)
 		if invoice_amount < flt(loyalty_program.get("minimum_spent_amount", 0)):
 			return {
 				"success": True,
 				"data": {
 					"points_earned": 0,
 					"tier": "Not eligible",
+					"calculation_basis": "N/A",
 					"message": f"Minimum spent amount: {loyalty_program.get('minimum_spent_amount', 0)}"
 				}
 			}
@@ -1057,13 +1059,27 @@ def calculate_loyalty_points_preview(customer, invoice_amount):
 		customer_summary = get_customer_loyalty_points(customer)
 		total_spent = flt(customer_summary.get("total_spent", 0)) + invoice_amount
 
-		# Get loyalty program document for tier calculation
+		# Get loyalty program document for tier calculation and basis
 		loyalty_program_doc = frappe.get_doc("Customer Loyalty Program", loyalty_program.name)
 		tier_factor = loyalty_program_doc.get_tier_factor(total_spent)
 		tier_name = loyalty_program_doc.get_tier_name(total_spent)
+		
+		# Determine calculation basis
+		calculation_basis = getattr(loyalty_program_doc, 'points_calculation_basis', 'Total Amount')
+		
+		if calculation_basis == "Profit":
+			if profit_amount is not None:
+				calculation_amount = flt(profit_amount)
+			else:
+				# If profit not provided, assume 20% profit margin as estimate
+				calculation_amount = invoice_amount * 0.2
+			basis_display = "profit"
+		else:
+			calculation_amount = invoice_amount
+			basis_display = "total amount"
 
 		# Calculate points
-		points_earned = invoice_amount * tier_factor
+		points_earned = calculation_amount * tier_factor
 
 		return {
 			"success": True,
@@ -1071,6 +1087,9 @@ def calculate_loyalty_points_preview(customer, invoice_amount):
 				"points_earned": points_earned,
 				"tier": tier_name,
 				"conversion_factor": tier_factor,
+				"calculation_basis": calculation_basis,
+				"calculation_amount": calculation_amount,
+				"basis_display": basis_display,
 				"invoice_amount": invoice_amount,
 				"total_spent_after": total_spent
 			}

@@ -14,6 +14,7 @@ The Customer Loyalty Program is a comprehensive feature added to the E Mart app 
 
 2. **Automatic Points Calculation**
    - Points awarded automatically on Sales Invoice submission
+   - Configurable calculation basis: Total Amount or Profit
    - Configurable minimum spending thresholds
    - Tier-based multipliers for enhanced rewards
 
@@ -39,7 +40,7 @@ The Customer Loyalty Program is a comprehensive feature added to the E Mart app 
 ### Database Schema
 
 #### Customer Loyalty Program Doctype
-- **Fields**: Program name, type, conversion factors, tier thresholds, customer group targeting
+- **Fields**: Program name, type, points calculation basis, conversion factors, tier thresholds, customer group targeting
 - **Validation**: Tier hierarchy, default program constraints
 - **Permissions**: Sales Manager (full), Sales User (read)
 
@@ -94,10 +95,26 @@ mobile-app/src/screens/loyalty/
 3. Configure the following:
    - **Program Name**: Descriptive name for the program
    - **Program Type**: Choose Single Tier or Multiple Tier
-   - **Conversion Factor**: Points earned per rupee spent
+   - **Points Calculation Basis**: Choose "Total Amount" or "Profit"
+   - **Conversion Factor**: Points earned per rupee (of chosen basis)
    - **Minimum Spent Amount**: Minimum invoice amount to earn points
    - **Customer Group**: Target specific customer groups (optional)
    - **Validity Dates**: Program duration (optional)
+
+#### Points Calculation Basis Options
+
+**Total Amount Based (Default)**
+- Points calculated on invoice grand total
+- Formula: Points = Invoice Amount × Conversion Factor × Tier Multiplier
+- Suitable for businesses focusing on sales volume
+
+**Profit Based**
+- Points calculated on profit margin
+- Formula: Points = Profit Amount × Conversion Factor × Tier Multiplier
+- Profit = Sales Amount - Purchase Cost - Expenses
+- Suitable for businesses wanting to reward profitable transactions
+
+Example: With conversion factor 1.0 and "Profit" basis, a ₹10,000 sale with ₹2,000 profit earns 2,000 points instead of 10,000.
 
 ### Step 2: Configure Tier Settings (Multiple Tier Only)
 
