@@ -6,7 +6,7 @@ import { theme } from '../../theme/theme';
 const ScanQRScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Scan Q R</Text>
+      <Text style={styles.title}>Scan QR</Text>
       <Text style={styles.subtitle}>Coming Soon</Text>
       <Button
         mode="contained"
