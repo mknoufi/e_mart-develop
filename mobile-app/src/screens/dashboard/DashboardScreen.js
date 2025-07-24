@@ -200,36 +200,26 @@ const DashboardScreen = ({ navigation }) => {
         {/* Quick Actions */}
         <View style={styles.section}>
           <Title style={styles.sectionTitle}>Quick Actions</Title>
-          <View style={styles.quickActionsGrid}>
-            <QuickActionCard
-              title="New Purchase"
-              subtitle="Create purchase invoice"
-              icon="plus-circle"
-              color={colors.primary}
-              onPress={() => handleQuickAction('newPurchase')}
-            />
-            <QuickActionCard
-              title="New Sales"
-              subtitle="Create sales invoice"
-              icon="plus-circle"
-              color={colors.success}
-              onPress={() => handleQuickAction('newSales')}
-            />
-            <QuickActionCard
-              title="Scan QR"
-              subtitle="Scan barcode/QR code"
-              icon="qrcode-scan"
-              color={colors.info}
-              onPress={() => handleQuickAction('scanQR')}
-            />
-            <QuickActionCard
-              title="Camera"
-              subtitle="Take photo"
-              icon="camera"
-              color={colors.warning}
-              onPress={() => handleQuickAction('camera')}
-            />
-          </View>
+          <FlatList
+            data={[
+              { title: "New Purchase", subtitle: "Create purchase invoice", icon: "plus-circle", color: colors.primary, action: 'newPurchase' },
+              { title: "New Sales", subtitle: "Create sales invoice", icon: "plus-circle", color: colors.success, action: 'newSales' },
+              { title: "Scan QR", subtitle: "Scan barcode/QR code", icon: "qrcode-scan", color: colors.info, action: 'scanQR' },
+              { title: "Camera", subtitle: "Take photo", icon: "camera", color: colors.warning, action: 'camera' },
+            ]}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <QuickActionCard
+                title={item.title}
+                subtitle={item.subtitle}
+                icon={item.icon}
+                color={item.color}
+                onPress={() => handleQuickAction(item.action)}
+              />
+            )}
+            numColumns={2}
+            contentContainerStyle={styles.quickActionsGrid}
+          />
         </View>
 
         {/* Sales Chart */}
