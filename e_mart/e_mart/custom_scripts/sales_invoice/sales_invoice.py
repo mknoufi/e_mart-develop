@@ -10,6 +10,7 @@ def on_submit(doc, method=None):
 	create_buyback_journal_entry(doc, method)
 	create_demo_tasks_on_submit(doc, method)
 	update_monthly_commission_log(doc, method)
+	create_loyalty_points_transaction(doc, method)
 
 
 def validate_buyback_fields(doc, method=None):
@@ -406,3 +407,72 @@ def calculate_profit_for_commission(doc, method):
 		contribution = flt(item.sales_expense_contribution or 0)
 		profit = total_expense - contribution
 		item.profit_for_commission = profit
+
+
+def create_loyalty_points_transaction(doc, method=None):
+	"""Create loyalty points transaction when sales invoice is submitted"""
+	try:
+		# Skip if not eligible for loyalty points
+		if not doc.customer or flt(doc.grand_total) <= 0:
+			return
+
+		# Import here to avoid circular imports
+		from e_mart.e_mart.doctype.customer_loyalty_program.customer_loyalty_program import (
+			get_applicable_loyalty_program,
+		)
+		from e_mart.e_mart.doctype.loyalty_points_transaction.loyalty_points_transaction import (
+			create_loyalty_points_entry,
+			get_customer_loyalty_points,
+		)
+
+		# Get applicable loyalty program for customer
+		loyalty_program = get_applicable_loyalty_program(doc.customer)
+		if not loyalty_program:
+			return
+
+		# Check minimum spent amount
+		if flt(doc.grand_total) < flt(loyalty_program.get("minimum_spent_amount", 0)):
+			return
+
+		# Get customer's total spent amount for tier calculation
+		customer_summary = get_customer_loyalty_points(doc.customer)
+		total_spent = flt(customer_summary.get("total_spent", 0)) + flt(doc.grand_total)
+
+		# Get loyalty program document to calculate tier factor
+		loyalty_program_doc = frappe.get_doc("Customer Loyalty Program", loyalty_program.name)
+		tier_factor = loyalty_program_doc.get_tier_factor(total_spent)
+		tier_name = loyalty_program_doc.get_tier_name(total_spent)
+
+		# Calculate loyalty points
+		points_earned = flt(doc.grand_total) * flt(tier_factor)
+
+		# Create loyalty points transaction
+		if points_earned > 0:
+			loyalty_transaction = create_loyalty_points_entry(
+				customer=doc.customer,
+				loyalty_program=loyalty_program.name,
+				points=points_earned,
+				transaction_type="Earned",
+				sales_invoice=doc.name,
+				remarks=f"Points earned from Sales Invoice {doc.name} (Tier: {tier_name})"
+			)
+
+			# Update the loyalty transaction with tier information
+			loyalty_transaction.tier_achieved = tier_name
+			loyalty_transaction.save()
+
+			# Show success message
+			frappe.msgprint(
+				f'🎉 Customer earned {points_earned:.1f} loyalty points! (Tier: {tier_name})',
+				alert=True,
+				indicator="green"
+			)
+
+	except Exception as e:
+		# Log error but don't fail the sales invoice submission
+		frappe.log_error(f"Error creating loyalty points transaction: {e!s}", "Loyalty Points Error")
+		frappe.msgprint(
+			f"Sales Invoice submitted successfully, but there was an issue with loyalty points: {e!s}",
+			alert=True,
+			indicator="orange"
+		)

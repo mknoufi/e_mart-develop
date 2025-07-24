@@ -1,0 +1,216 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-24 04:40:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "program_name",
+  "is_default",
+  "customer_group",
+  "column_break_1",
+  "auto_opt_in",
+  "from_date",
+  "to_date",
+  "section_break_2",
+  "loyalty_program_type",
+  "conversion_factor",
+  "column_break_2",
+  "expense_account",
+  "cost_center",
+  "section_break_3",
+  "minimum_spent_amount",
+  "column_break_3",
+  "tier_1_collection_threshold",
+  "tier_1_collection_multiplier",
+  "section_break_4",
+  "tier_2_collection_threshold",
+  "tier_2_collection_multiplier",
+  "column_break_4",
+  "tier_3_collection_threshold",
+  "tier_3_collection_multiplier"
+ ],
+ "fields": [
+  {
+   "fieldname": "program_name",
+   "fieldtype": "Data",
+   "label": "Program Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "customer_group",
+   "fieldtype": "Link",
+   "label": "Customer Group",
+   "options": "Customer Group"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_opt_in",
+   "fieldtype": "Check",
+   "label": "Auto Opt In (For New Customers)"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Valid From"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "Valid To"
+  },
+  {
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break",
+   "label": "Earning Rules"
+  },
+  {
+   "default": "Single Tier Program",
+   "fieldname": "loyalty_program_type",
+   "fieldtype": "Select",
+   "label": "Loyalty Program Type",
+   "options": "Single Tier Program\nMultiple Tier Program"
+  },
+  {
+   "default": "1",
+   "description": "Collection factor to convert invoice grand total to loyalty points",
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break",
+   "label": "Collection Rules"
+  },
+  {
+   "default": "0",
+   "description": "Minimum spent amount to earn loyalty points",
+   "fieldname": "minimum_spent_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Spent Amount"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.loyalty_program_type == 'Multiple Tier Program'",
+   "description": "Total spent amount for tier 1",
+   "fieldname": "tier_1_collection_threshold",
+   "fieldtype": "Currency",
+   "label": "Tier 1 Collection Threshold"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.loyalty_program_type == 'Multiple Tier Program'",
+   "description": "Conversion factor for tier 1",
+   "fieldname": "tier_1_collection_multiplier",
+   "fieldtype": "Float",
+   "label": "Tier 1 Collection Multiplier"
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.loyalty_program_type == 'Multiple Tier Program'",
+   "description": "Total spent amount for tier 2",
+   "fieldname": "tier_2_collection_threshold",
+   "fieldtype": "Currency",
+   "label": "Tier 2 Collection Threshold"
+  },
+  {
+   "default": "1.5",
+   "depends_on": "eval:doc.loyalty_program_type == 'Multiple Tier Program'",
+   "description": "Conversion factor for tier 2",
+   "fieldname": "tier_2_collection_multiplier",
+   "fieldtype": "Float",
+   "label": "Tier 2 Collection Multiplier"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.loyalty_program_type == 'Multiple Tier Program'",
+   "description": "Total spent amount for tier 3",
+   "fieldname": "tier_3_collection_threshold",
+   "fieldtype": "Currency",
+   "label": "Tier 3 Collection Threshold"
+  },
+  {
+   "default": "2",
+   "depends_on": "eval:doc.loyalty_program_type == 'Multiple Tier Program'",
+   "description": "Conversion factor for tier 3",
+   "fieldname": "tier_3_collection_multiplier",
+   "fieldtype": "Float",
+   "label": "Tier 3 Collection Multiplier"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-24 04:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "E Mart",
+ "name": "Customer Loyalty Program",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales User",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
