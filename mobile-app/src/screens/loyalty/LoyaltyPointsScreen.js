@@ -191,7 +191,7 @@ const LoyaltyPointsScreen = ({ navigation, route }) => {
           {loyaltyData.tier_info?.calculation_basis && (
             <View style={styles.calculationBasisContainer}>
               <Icon 
-                name={loyaltyData.tier_info.calculation_basis === 'Profit' ? 'chart-line' : 'currency-usd'} 
+                name={loyaltyData.tier_info.calculation_basis === CALCULATION_BASIS_PROFIT ? ICON_PROFIT : ICON_REVENUE} 
                 size={16} 
                 color={theme.colors.secondary} 
               />
