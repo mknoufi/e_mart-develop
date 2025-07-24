@@ -896,3 +896,204 @@ def get_inventory_summary_report(filters):
 	)
 
 	return {"success": True, "data": data}
+
+
+# Loyalty Program API Endpoints
+
+@frappe.whitelist()
+def get_customer_loyalty_summary(customer):
+	"""Get customer loyalty program summary for mobile app"""
+	try:
+		from e_mart.e_mart.doctype.customer_loyalty_program.customer_loyalty_program import (
+			get_applicable_loyalty_program,
+		)
+		from e_mart.e_mart.doctype.loyalty_points_transaction.loyalty_points_transaction import (
+			get_customer_loyalty_points,
+		)
+
+		# Get customer loyalty points
+		loyalty_summary = get_customer_loyalty_points(customer)
+
+		# Get applicable loyalty program
+		loyalty_program = get_applicable_loyalty_program(customer)
+
+		# Get tier information if applicable
+		tier_info = None
+		if loyalty_program:
+			loyalty_program_doc = frappe.get_doc("Customer Loyalty Program", loyalty_program.name)
+			tier_info = {
+				"current_tier": loyalty_program_doc.get_tier_name(loyalty_summary.get("total_spent", 0)),
+				"conversion_factor": loyalty_program_doc.get_tier_factor(loyalty_summary.get("total_spent", 0)),
+				"program_name": loyalty_program_doc.program_name,
+				"program_type": loyalty_program_doc.loyalty_program_type,
+				"calculation_basis": getattr(loyalty_program_doc, 'points_calculation_basis', 'Total Amount')
+			}
+
+			# Add tier thresholds for multiple tier programs
+			if loyalty_program_doc.loyalty_program_type == "Multiple Tier Program":
+				tier_info["tier_thresholds"] = {
+					"tier_1": loyalty_program_doc.tier_1_collection_threshold,
+					"tier_2": loyalty_program_doc.tier_2_collection_threshold,
+					"tier_3": loyalty_program_doc.tier_3_collection_threshold
+				}
+
+		return {
+			"success": True,
+			"data": {
+				"customer": customer,
+				"current_points": loyalty_summary.get("current_points", 0),
+				"total_spent": loyalty_summary.get("total_spent", 0),
+				"tier_info": tier_info,
+				"recent_transactions": loyalty_summary.get("recent_transactions", [])
+			}
+		}
+	except Exception as e:
+		frappe.log_error(f"Get customer loyalty summary error: {e!s}")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def get_loyalty_points_history(customer, limit=20):
+	"""Get loyalty points transaction history for mobile app"""
+	try:
+		from e_mart.e_mart.doctype.loyalty_points_transaction.loyalty_points_transaction import (
+			get_loyalty_points_history,
+		)
+
+		history = get_loyalty_points_history(customer, limit)
+
+		return {"success": True, "data": history}
+	except Exception as e:
+		frappe.log_error(f"Get loyalty points history error: {e!s}")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def redeem_loyalty_points(customer, points_to_redeem, remarks=None):
+	"""Redeem loyalty points for a customer"""
+	try:
+		from e_mart.e_mart.doctype.customer_loyalty_program.customer_loyalty_program import (
+			get_applicable_loyalty_program,
+		)
+		from e_mart.e_mart.doctype.loyalty_points_transaction.loyalty_points_transaction import (
+			create_loyalty_points_entry,
+			get_customer_loyalty_points,
+		)
+
+		# Validate points to redeem
+		points_to_redeem = flt(points_to_redeem)
+		if points_to_redeem <= 0:
+			return {"success": False, "message": "Points to redeem must be greater than zero"}
+
+		# Get customer's current points
+		loyalty_summary = get_customer_loyalty_points(customer)
+		current_points = loyalty_summary.get("current_points", 0)
+
+		if points_to_redeem > current_points:
+			return {"success": False, "message": f"Insufficient points. Available: {current_points}"}
+
+		# Get applicable loyalty program
+		loyalty_program = get_applicable_loyalty_program(customer)
+		if not loyalty_program:
+			return {"success": False, "message": "No loyalty program found for customer"}
+
+		# Create redemption transaction
+		redemption_transaction = create_loyalty_points_entry(
+			customer=customer,
+			loyalty_program=loyalty_program.name,
+			points=points_to_redeem,
+			transaction_type="Redeemed",
+			remarks=remarks or "Points redeemed via mobile app"
+		)
+
+		# Calculate remaining points
+		remaining_points = current_points - points_to_redeem
+
+		return {
+			"success": True,
+			"data": {
+				"transaction_name": redemption_transaction.name,
+				"points_redeemed": points_to_redeem,
+				"remaining_points": remaining_points,
+				"message": f"Successfully redeemed {points_to_redeem} points"
+			}
+		}
+	except Exception as e:
+		frappe.log_error(f"Redeem loyalty points error: {e!s}")
+		return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist()
+def calculate_loyalty_points_preview(customer, invoice_amount, profit_amount=None):
+	"""Calculate loyalty points preview for a potential invoice"""
+	try:
+		from e_mart.e_mart.doctype.customer_loyalty_program.customer_loyalty_program import (
+			get_applicable_loyalty_program,
+		)
+		from e_mart.e_mart.doctype.loyalty_points_transaction.loyalty_points_transaction import (
+			get_customer_loyalty_points,
+		)
+
+		invoice_amount = flt(invoice_amount)
+		if invoice_amount <= 0:
+			return {"success": False, "message": "Invoice amount must be greater than zero"}
+
+		# Get applicable loyalty program
+		loyalty_program = get_applicable_loyalty_program(customer)
+		if not loyalty_program:
+			return {"success": False, "message": "No loyalty program found for customer"}
+
+		# Check minimum spent amount (still based on invoice amount)
+		if invoice_amount < flt(loyalty_program.get("minimum_spent_amount", 0)):
+			return {
+				"success": True,
+				"data": {
+					"points_earned": 0,
+					"tier": "Not eligible",
+					"calculation_basis": "N/A",
+					"message": f"Minimum spent amount: {loyalty_program.get('minimum_spent_amount', 0)}"
+				}
+			}
+
+		# Get customer's current total spent
+		customer_summary = get_customer_loyalty_points(customer)
+		total_spent = flt(customer_summary.get("total_spent", 0)) + invoice_amount
+
+		# Get loyalty program document for tier calculation and basis
+		loyalty_program_doc = frappe.get_doc("Customer Loyalty Program", loyalty_program.name)
+		tier_factor = loyalty_program_doc.get_tier_factor(total_spent)
+		tier_name = loyalty_program_doc.get_tier_name(total_spent)
+		
+		# Determine calculation basis
+		calculation_basis = getattr(loyalty_program_doc, 'points_calculation_basis', 'Total Amount')
+		
+		if calculation_basis == "Profit":
+			if profit_amount is not None:
+				calculation_amount = flt(profit_amount)
+			else:
+				# If profit not provided, assume 20% profit margin as estimate
+				calculation_amount = invoice_amount * 0.2
+			basis_display = "profit"
+		else:
+			calculation_amount = invoice_amount
+			basis_display = "total amount"
+
+		# Calculate points
+		points_earned = calculation_amount * tier_factor
+
+		return {
+			"success": True,
+			"data": {
+				"points_earned": points_earned,
+				"tier": tier_name,
+				"conversion_factor": tier_factor,
+				"calculation_basis": calculation_basis,
+				"calculation_amount": calculation_amount,
+				"basis_display": basis_display,
+				"invoice_amount": invoice_amount,
+				"total_spent_after": total_spent
+			}
+		}
+	except Exception as e:
+		frappe.log_error(f"Calculate loyalty points preview error: {e!s}")
+		return {"success": False, "message": str(e)}

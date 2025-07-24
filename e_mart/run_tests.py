@@ -25,6 +25,8 @@ def run_tests():
 		"e_mart/doctype/months/test_months.py",
 		"e_mart/doctype/debit_note_log/test_debit_note_log.py",
 		"e_mart/doctype/monthly_commission_log/test_monthly_commission_log.py",
+		"e_mart/doctype/customer_loyalty_program/test_customer_loyalty_program.py",
+		"e_mart/doctype/loyalty_points_transaction/test_loyalty_points_transaction.py",
 	]
 
 	print("🧪 Running E Mart App Tests...")
