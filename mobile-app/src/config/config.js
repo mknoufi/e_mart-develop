@@ -2,7 +2,7 @@
 
 // API Configuration
 if (!process.env.API_BASE_URL) {
-  throw new Error("API_BASE_URL environment variable is required but not set.");
+  throw new Error("API_BASE_URL environment variable is required but not set. Please ensure it is defined in your environment configuration. Refer to the deployment guide or README for more details.");
 }
 export const API_BASE_URL = process.env.API_BASE_URL;
 
