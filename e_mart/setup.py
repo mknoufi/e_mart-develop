@@ -67,41 +67,43 @@ def delete_custom_fields(custom_fields: dict):
 
 def get_purchase_order_custom_fields():
 	"""Get custom fields for Purchase Order"""
-	return [
-		{
-			"fieldname": "is_special_purchase",
-			"label": "Is Special Purchase",
-			"fieldtype": "Check",
-			"insert_after": "supplier",
-			"description": "Check if this is a special purchase scheme",
-		},
-		{
-			"fieldname": "special_scheme",
-			"label": "Special Scheme",
-			"fieldtype": "Link",
-			"options": "Special Purchase Scheme",
-			"insert_after": "is_special_purchase",
-			"depends_on": "eval:doc.is_special_purchase == 1",
-			"description": "Select special purchase scheme if applicable",
-		},
-		{
-			"fieldname": "series_number",
-			"label": "Series Number",
-			"fieldtype": "Data",
-			"insert_after": "name",
-			"read_only": 1,
-			"description": "Auto-generated series number based on purchase category",
-		},
-		{
-			"fieldname": "purchase_category",
-			"label": "Purchase Category",
-			"fieldtype": "Select",
-			"options": "Normal\nSpecial",
-			"insert_after": "series_number",
-			"default": "Normal",
-			"description": "Category of purchase (Normal or Special)",
-		},
-	]
+	return {
+		"Purchase Order": [
+			{
+				"fieldname": "is_special_purchase",
+				"label": "Is Special Purchase",
+				"fieldtype": "Check",
+				"insert_after": "supplier",
+				"description": "Check if this is a special purchase scheme",
+			},
+			{
+				"fieldname": "special_scheme",
+				"label": "Special Scheme",
+				"fieldtype": "Link",
+				"options": "Special Purchase Scheme",
+				"insert_after": "is_special_purchase",
+				"depends_on": "eval:doc.is_special_purchase == 1",
+				"description": "Select special purchase scheme if applicable",
+			},
+			{
+				"fieldname": "series_number",
+				"label": "Series Number",
+				"fieldtype": "Data",
+				"insert_after": "name",
+				"read_only": 1,
+				"description": "Auto-generated series number based on purchase category",
+			},
+			{
+				"fieldname": "purchase_category",
+				"label": "Purchase Category",
+				"fieldtype": "Select",
+				"options": "Normal\nSpecial",
+				"insert_after": "series_number",
+				"default": "Normal",
+				"description": "Category of purchase (Normal or Special)",
+			},
+		]
+	}
 
 
 def get_purchase_receipt_custom_fields():
@@ -123,41 +125,43 @@ def get_purchase_receipt_custom_fields():
 
 def get_purchase_invoice_custom_fields():
 	"""Get custom fields for Purchase Invoice"""
-	return [
-		{
-			"fieldname": "is_special_purchase",
-			"label": "Is Special Purchase",
-			"fieldtype": "Check",
-			"insert_after": "supplier",
-			"description": "Check if this is a special purchase scheme",
-		},
-		{
-			"fieldname": "special_scheme",
-			"label": "Special Scheme",
-			"fieldtype": "Link",
-			"options": "Special Purchase Scheme",
-			"insert_after": "is_special_purchase",
-			"depends_on": "eval:doc.is_special_purchase == 1",
-			"description": "Select special purchase scheme if applicable",
-		},
-		{
-			"fieldname": "series_number",
-			"label": "Series Number",
-			"fieldtype": "Data",
-			"insert_after": "name",
-			"read_only": 1,
-			"description": "Auto-generated series number based on purchase category",
-		},
-		{
-			"fieldname": "purchase_category",
-			"label": "Purchase Category",
-			"fieldtype": "Select",
-			"options": "Normal\nSpecial",
-			"insert_after": "series_number",
-			"default": "Normal",
-			"description": "Category of purchase (Normal or Special)",
-		},
-	]
+	return {
+		"Purchase Invoice": [
+			{
+				"fieldname": "is_special_purchase",
+				"label": "Is Special Purchase",
+				"fieldtype": "Check",
+				"insert_after": "supplier",
+				"description": "Check if this is a special purchase scheme",
+			},
+			{
+				"fieldname": "special_scheme",
+				"label": "Special Scheme",
+				"fieldtype": "Link",
+				"options": "Special Purchase Scheme",
+				"insert_after": "is_special_purchase",
+				"depends_on": "eval:doc.is_special_purchase == 1",
+				"description": "Select special purchase scheme if applicable",
+			},
+			{
+				"fieldname": "series_number",
+				"label": "Series Number",
+				"fieldtype": "Data",
+				"insert_after": "name",
+				"read_only": 1,
+				"description": "Auto-generated series number based on purchase category",
+			},
+			{
+				"fieldname": "purchase_category",
+				"label": "Purchase Category",
+				"fieldtype": "Select",
+				"options": "Normal\nSpecial",
+				"insert_after": "series_number",
+				"default": "Normal",
+				"description": "Category of purchase (Normal or Special)",
+			},
+		]
+	}
 
 
 def get_purchase_invoice_item_custom_fields():
