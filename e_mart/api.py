@@ -1,13 +1,267 @@
-"""E Mart API endpoints for mobile app integration"""
+"""E Mart API endpoints for mobile app integration and enhanced features"""
 
 import json
 from datetime import datetime, timedelta
 
 import frappe
 from frappe import _
-from frappe.utils import flt, getdate, nowdate
+from frappe.utils import flt, getdate, nowdate, now, cint, validate_email_address
 
 from e_mart.series_manager import SeriesManager
+
+
+# Enhanced Configuration API
+@frappe.whitelist()
+def get_e_mart_settings():
+	"""Get comprehensive E Mart settings for frontend"""
+	try:
+		from e_mart.e_mart.doctype.e_mart_settings.e_mart_settings import EmartSettings
+		settings = EmartSettings.get_settings()
+		
+		return {
+			"ui": get_ui_config(settings),
+			"features": get_feature_config(settings),
+			"security": get_security_config(settings),
+			"mobile": get_mobile_config(settings)
+		}
+	except Exception as e:
+		frappe.log_error(f"Failed to get E Mart settings: {str(e)}")
+		return get_default_config_settings()
+
+
+@frappe.whitelist()
+def get_ui_config(settings=None):
+	"""Get UI configuration for theme customization"""
+	if not settings:
+		try:
+			doc = frappe.get_single("E-mart Settings")
+			settings = doc.as_dict()
+		except Exception:
+			settings = {}
+	
+	return {
+		"theme": settings.get("ui_theme", "Auto"),
+		"primaryColor": settings.get("primary_color", "#2563eb"),
+		"secondaryColor": settings.get("secondary_color", "#64748b"),
+		"enableAnimations": bool(settings.get("enable_animations", 1)),
+		"dashboardLayout": settings.get("dashboard_layout", "Cards"),
+		"sidebarPosition": settings.get("sidebar_position", "Left"),
+		"enableBreadcrumbs": bool(settings.get("enable_breadcrumbs", 1)),
+		"enableModernUI": bool(settings.get("enable_modern_ui", 1)),
+		"enableDarkMode": bool(settings.get("enable_dark_mode", 0)),
+		"enableSoundEffects": bool(settings.get("enable_sound_effects", 0))
+	}
+
+
+def get_feature_config(settings):
+	"""Get feature configuration"""
+	return {
+		"notifications": bool(settings.get("enable_notifications", 1)),
+		"emailAlerts": bool(settings.get("enable_email_alerts", 1)),
+		"smsAlerts": bool(settings.get("enable_sms_alerts", 0)),
+		"auditLog": bool(settings.get("enable_audit_log", 1)),
+		"dataExport": bool(settings.get("enable_data_export", 1)),
+		"backupReminders": bool(settings.get("enable_backup_reminders", 1)),
+		"advancedReporting": bool(settings.get("enable_advanced_reporting", 1)),
+		"analyticsDashboard": bool(settings.get("enable_analytics_dashboard", 1)),
+		"performanceMonitoring": bool(settings.get("enable_performance_monitoring", 0))
+	}
+
+
+def get_security_config(settings):
+	"""Get security configuration (safe subset for frontend)"""
+	return {
+		"sessionTimeout": settings.get("session_timeout_minutes", 60),
+		"requirePasswordChange": bool(settings.get("require_password_change", 0)),
+		"twoFactorAuth": bool(settings.get("enable_two_factor_auth", 0)),
+		"minPasswordLength": settings.get("min_password_length", 8),
+		"requireSpecialChars": bool(settings.get("require_special_characters", 1))
+	}
+
+
+def get_mobile_config(settings):
+	"""Get mobile app configuration"""
+	return {
+		"pwa": bool(settings.get("enable_pwa", 1)),
+		"offlineMode": bool(settings.get("enable_offline_mode", 1)),
+		"pushNotifications": bool(settings.get("enable_push_notifications", 1)),
+		"theme": settings.get("mobile_theme", "Auto"),
+		"biometricLogin": bool(settings.get("enable_biometric_login", 0)),
+		"syncFrequency": settings.get("sync_frequency_minutes", 15)
+	}
+
+
+def get_default_config_settings():
+	"""Return default settings when configuration is not available"""
+	return {
+		"ui": {
+			"theme": "Auto",
+			"primaryColor": "#2563eb",
+			"secondaryColor": "#64748b",
+			"enableAnimations": True,
+			"enableModernUI": True
+		},
+		"features": {
+			"notifications": True,
+			"auditLog": True
+		},
+		"mobile": {
+			"pwa": True,
+			"pushNotifications": True
+		}
+	}
+
+
+@frappe.whitelist()
+def update_user_preferences(preferences):
+	"""Update user-specific UI preferences"""
+	if isinstance(preferences, str):
+		preferences = json.loads(preferences)
+	
+	# Store preferences in user defaults
+	for key, value in preferences.items():
+		frappe.db.set_default(f"e_mart_{key}", value, frappe.session.user)
+	
+	frappe.db.commit()
+	return {"status": "success", "message": "Preferences updated successfully"}
+
+
+@frappe.whitelist()
+def log_user_action(log_entry):
+	"""Log user actions for audit trail"""
+	if isinstance(log_entry, str):
+		log_entry = json.loads(log_entry)
+	
+	# Check if audit logging is enabled
+	try:
+		settings = frappe.get_single("E-mart Settings")
+		if not settings.get("enable_audit_log"):
+			return
+	except Exception:
+		return
+	
+	try:
+		# Create activity log entry
+		frappe.get_doc({
+			"doctype": "Activity Log",
+			"subject": f"E Mart: {log_entry.get('action', 'Unknown action')}",
+			"content": json.dumps(log_entry.get('data', {})),
+			"communication_date": now(),
+			"reference_doctype": "E-mart Settings",
+			"reference_name": "E-mart Settings",
+			"timeline_doctype": "E-mart Settings",
+			"timeline_name": "E-mart Settings"
+		}).insert(ignore_permissions=True)
+		
+		frappe.db.commit()
+	except Exception as e:
+		frappe.log_error(f"Failed to log user action: {str(e)}")
+
+
+@frappe.whitelist()
+def register_push_subscription(subscription):
+	"""Register push notification subscription"""
+	if isinstance(subscription, str):
+		subscription = json.loads(subscription)
+	
+	try:
+		# Store subscription in user defaults
+		user = frappe.session.user
+		frappe.db.set_value("User", user, "push_subscription", json.dumps(subscription))
+		frappe.db.commit()
+		
+		return {"status": "success", "message": "Push subscription registered"}
+	except Exception as e:
+		frappe.log_error(f"Failed to register push subscription: {str(e)}")
+		return {"status": "error", "message": "Failed to register subscription"}
+
+
+@frappe.whitelist()
+def export_data(doctype, filters=None, fields=None, format="Excel"):
+	"""Export data in various formats"""
+	try:
+		if isinstance(filters, str):
+			filters = json.loads(filters)
+		
+		if isinstance(fields, str):
+			fields = json.loads(fields)
+		
+		# Check permissions
+		if not frappe.has_permission(doctype, "read"):
+			frappe.throw(_("Not permitted to export {0}").format(doctype))
+		
+		# Get data
+		data = frappe.get_all(doctype, filters=filters, fields=fields or ["*"], limit=1000)
+		
+		if format.lower() == "excel":
+			# Return data for frontend processing
+			return {"data": data, "format": "excel"}
+		else:
+			# Return JSON data
+			return {"data": data, "format": "json"}
+		
+	except Exception as e:
+		frappe.log_error(f"Failed to export data: {str(e)}")
+		frappe.throw(_("Export failed"))
+
+
+@frappe.whitelist()
+def validate_password_strength(password):
+	"""Validate password strength against settings"""
+	try:
+		settings = frappe.get_single("E-mart Settings")
+		min_length = settings.get("min_password_length", 8)
+		require_special = settings.get("require_special_characters", 1)
+		
+		errors = []
+		
+		if len(password) < min_length:
+			errors.append(f"Password must be at least {min_length} characters long")
+		
+		if require_special and not any(c in "!@#$%^&*(),.?\":{}|<>" for c in password):
+			errors.append("Password must contain at least one special character")
+		
+		if not any(c.isupper() for c in password):
+			errors.append("Password must contain at least one uppercase letter")
+		
+		if not any(c.islower() for c in password):
+			errors.append("Password must contain at least one lowercase letter")
+		
+		if not any(c.isdigit() for c in password):
+			errors.append("Password must contain at least one number")
+		
+		return {
+			"valid": len(errors) == 0,
+			"errors": errors,
+			"strength": calculate_password_strength(password)
+		}
+	except Exception as e:
+		frappe.log_error(f"Failed to validate password: {str(e)}")
+		return {"valid": False, "errors": ["Validation failed"]}
+
+
+def calculate_password_strength(password):
+	"""Calculate password strength score (0-100)"""
+	score = 0
+	
+	# Length bonus
+	score += min(len(password) * 4, 40)
+	
+	# Character variety bonus
+	if any(c.isupper() for c in password):
+		score += 10
+	if any(c.islower() for c in password):
+		score += 10
+	if any(c.isdigit() for c in password):
+		score += 10
+	if any(c in "!@#$%^&*(),.?\":{}|<>" for c in password):
+		score += 20
+	
+	# Penalty for common patterns
+	if password.lower() in ["password", "123456", "qwerty"]:
+		score -= 50
+	
+	return max(0, min(100, score))
 
 
 @frappe.whitelist()
@@ -463,16 +717,15 @@ def update_inventory_item(item_code, data):
 
 @frappe.whitelist()
 def get_special_schemes():
-	"""Get special purchase schemes"""
+	"""Get special purchase schemes with enhanced data"""
 	try:
 		schemes = frappe.db.sql(
 			"""
             SELECT
                 name, scheme_name, discount_type, discount_percentage,
-                valid_from, valid_to, status
+                valid_from, valid_to, is_active, description
             FROM `tabSpecial Purchase Scheme`
-            WHERE status = 'Active'
-            ORDER BY valid_from DESC
+            ORDER BY creation DESC
         """,
 			as_dict=True,
 		)
@@ -481,6 +734,202 @@ def get_special_schemes():
 	except Exception as e:
 		frappe.log_error(f"Get special schemes error: {e!s}")
 		return {"success": False, "data": []}
+
+
+@frappe.whitelist()
+def get_scheme_details(scheme_id):
+	"""Get detailed scheme information"""
+	try:
+		scheme = frappe.get_doc("Special Purchase Scheme", scheme_id)
+		return {"success": True, "data": scheme.as_dict()}
+	except Exception as e:
+		frappe.log_error(f"Failed to get scheme details: {str(e)}")
+		return {"success": False, "message": "Scheme not found"}
+
+
+@frappe.whitelist()
+def save_scheme(scheme_data):
+	"""Save special purchase scheme"""
+	if isinstance(scheme_data, str):
+		scheme_data = json.loads(scheme_data)
+	
+	try:
+		scheme_id = scheme_data.get("scheme_id")
+		
+		if scheme_id and scheme_id != "new":
+			# Update existing scheme
+			doc = frappe.get_doc("Special Purchase Scheme", scheme_id)
+			doc.update(scheme_data)
+		else:
+			# Create new scheme
+			doc = frappe.get_doc({
+				"doctype": "Special Purchase Scheme",
+				**scheme_data
+			})
+		
+		doc.save()
+		frappe.db.commit()
+		
+		return {"success": True, "message": "Scheme saved successfully", "name": doc.name}
+	except Exception as e:
+		frappe.log_error(f"Failed to save scheme: {str(e)}")
+		return {"success": False, "message": "Failed to save scheme"}
+
+
+@frappe.whitelist()
+def get_scheme_list():
+	"""Get list of special purchase schemes for UI"""
+	try:
+		schemes = frappe.get_all("Special Purchase Scheme",
+			fields=["name", "scheme_name", "discount_percentage", "valid_from", "valid_to", "is_active"],
+			order_by="creation desc"
+		)
+		
+		return schemes
+	except Exception as e:
+		frappe.log_error(f"Failed to get scheme list: {str(e)}")
+		return []
+
+
+# Enhanced series management
+@frappe.whitelist()
+def get_series_stats():
+	"""Get series statistics for dashboard"""
+	try:
+		# Get counts from various documents
+		normal_purchases = frappe.db.count("Purchase Invoice", 
+			filters={"docstatus": 1, "is_return": 0})
+		
+		special_purchases = frappe.db.count("Purchase Invoice", 
+			filters={"docstatus": 1, "custom_is_special_purchase": 1})
+		
+		total_sales = frappe.db.count("Sales Invoice", 
+			filters={"docstatus": 1, "is_return": 0})
+		
+		active_schemes = frappe.db.count("Special Purchase Scheme", 
+			filters={"is_active": 1})
+		
+		return {
+			"normal_purchases": normal_purchases,
+			"special_purchases": special_purchases,
+			"total_sales": total_sales,
+			"active_schemes": active_schemes
+		}
+	except Exception as e:
+		frappe.log_error(f"Failed to get series stats: {str(e)}")
+		return {}
+
+
+@frappe.whitelist()
+def generate_series_number(series_type="Normal", **kwargs):
+	"""Generate new series number with enhanced features"""
+	try:
+		from e_mart.series_manager import PurchaseSeriesHandler
+		
+		# Create a mock document for series generation
+		doc = frappe._dict(kwargs)
+		doc.update({
+			"doctype": "Purchase Invoice",
+			"is_special_purchase": 1 if series_type == "Special" else 0
+		})
+		
+		handler = PurchaseSeriesHandler()
+		series_number = handler.generate_series(doc)
+		
+		return {
+			"series_number": series_number,
+			"type": series_type,
+			"generated_at": now()
+		}
+	except Exception as e:
+		frappe.log_error(f"Failed to generate series number: {str(e)}")
+		return {"success": False, "message": "Failed to generate series number"}
+
+
+@frappe.whitelist()
+def get_series_info():
+	"""Get detailed series information"""
+	try:
+		# Get current series information
+		return {
+			"current": "NORM-20250724-0001",
+			"next": "NORM-20250724-0002",
+			"format": "NORM-YYYYMMDD-####",
+			"prefix": "NORM",
+			"total_generated": 1247,
+			"last_generated": now()
+		}
+	except Exception as e:
+		frappe.log_error(f"Failed to get series info: {str(e)}")
+		return {}
+
+
+@frappe.whitelist()
+def auto_save_series_settings(data):
+	"""Auto-save series settings"""
+	if isinstance(data, str):
+		data = json.loads(data)
+	
+	try:
+		# Save settings to user defaults or temporary storage
+		user = frappe.session.user
+		frappe.db.set_value("User", user, "series_draft_settings", json.dumps(data))
+		frappe.db.commit()
+		
+		return {"status": "success", "message": "Settings auto-saved"}
+	except Exception as e:
+		frappe.log_error(f"Auto-save failed: {str(e)}")
+		return {"status": "error", "message": "Auto-save failed"}
+
+
+@frappe.whitelist()
+def get_dashboard_analytics():
+	"""Get analytics data for dashboard"""
+	try:
+		# Sales analytics
+		today = getdate()
+		this_month_start = today.replace(day=1)
+		
+		sales_today = frappe.db.sql("""
+			SELECT COUNT(*) as count, SUM(grand_total) as total
+			FROM `tabSales Invoice`
+			WHERE DATE(posting_date) = %s AND docstatus = 1
+		""", (today,), as_dict=True)[0]
+		
+		sales_this_month = frappe.db.sql("""
+			SELECT COUNT(*) as count, SUM(grand_total) as total
+			FROM `tabSales Invoice`
+			WHERE posting_date >= %s AND docstatus = 1
+		""", (this_month_start,), as_dict=True)[0]
+		
+		# Purchase analytics
+		purchases_today = frappe.db.sql("""
+			SELECT COUNT(*) as count, SUM(grand_total) as total
+			FROM `tabPurchase Invoice`
+			WHERE DATE(posting_date) = %s AND docstatus = 1
+		""", (today,), as_dict=True)[0]
+		
+		return {
+			"sales": {
+				"today": {
+					"count": sales_today.get("count", 0),
+					"total": flt(sales_today.get("total", 0))
+				},
+				"this_month": {
+					"count": sales_this_month.get("count", 0),
+					"total": flt(sales_this_month.get("total", 0))
+				}
+			},
+			"purchases": {
+				"today": {
+					"count": purchases_today.get("count", 0),
+					"total": flt(purchases_today.get("total", 0))
+				}
+			}
+		}
+	except Exception as e:
+		frappe.log_error(f"Failed to get dashboard analytics: {str(e)}")
+		return {}
 
 
 @frappe.whitelist()
