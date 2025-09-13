@@ -5,6 +5,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "business_settings_tab",
   "purchase_series_mapping",
   "section_break_ecmj",
   "debit_note_adjusted_account",
@@ -14,6 +15,59 @@
   "buyback_posting_account",
   "column_break_aixl",
   "additional_salary_component",
+  "ui_ux_settings_tab",
+  "enable_modern_ui",
+  "ui_theme",
+  "primary_color",
+  "secondary_color",
+  "column_break_ui1",
+  "enable_dark_mode",
+  "enable_animations",
+  "enable_sound_effects",
+  "column_break_ui2",
+  "dashboard_layout",
+  "sidebar_position",
+  "enable_breadcrumbs",
+  "feature_settings_tab",
+  "enable_notifications",
+  "enable_email_alerts",
+  "enable_sms_alerts",
+  "column_break_feat1",
+  "enable_audit_log",
+  "enable_data_export",
+  "enable_backup_reminders",
+  "column_break_feat2",
+  "enable_advanced_reporting",
+  "enable_analytics_dashboard",
+  "enable_performance_monitoring",
+  "security_settings_tab",
+  "session_timeout_minutes",
+  "max_login_attempts",
+  "require_password_change",
+  "column_break_sec1",
+  "enable_two_factor_auth",
+  "enable_login_logging",
+  "enable_api_rate_limiting",
+  "column_break_sec2",
+  "password_expiry_days",
+  "min_password_length",
+  "require_special_characters",
+  "mobile_settings_tab",
+  "enable_pwa",
+  "enable_offline_mode",
+  "enable_push_notifications",
+  "column_break_mob1",
+  "mobile_theme",
+  "enable_biometric_login",
+  "sync_frequency_minutes",
+  "integration_settings_tab",
+  "enable_api_access",
+  "api_rate_limit",
+  "enable_webhooks",
+  "column_break_int1",
+  "enable_third_party_sync",
+  "backup_provider",
+  "cloud_storage_enabled",
   "demo_schedule_details_tab",
   "subject",
   "task_type",
@@ -22,6 +76,11 @@
   "escalation_duration"
  ],
  "fields": [
+  {
+   "fieldname": "business_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Business Settings"
+  },
   {
    "fieldname": "purchase_series_mapping",
    "fieldtype": "Table",
@@ -97,13 +156,375 @@
    "fieldtype": "Link",
    "label": "Additional Salary Component",
    "options": "Salary Component"
+  },
+  {
+   "fieldname": "ui_ux_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "UI/UX Settings"
+  },
+  {
+   "fieldname": "enable_modern_ui",
+   "fieldtype": "Check",
+   "label": "Enable Modern UI",
+   "default": 1,
+   "description": "Enable enhanced UI/UX components and animations"
+  },
+  {
+   "fieldname": "ui_theme",
+   "fieldtype": "Select",
+   "label": "UI Theme",
+   "options": "Light\nDark\nAuto",
+   "default": "Auto",
+   "description": "Choose the overall theme for the application"
+  },
+  {
+   "fieldname": "primary_color",
+   "fieldtype": "Color",
+   "label": "Primary Color",
+   "default": "#2563eb",
+   "description": "Primary brand color for buttons and accents"
+  },
+  {
+   "fieldname": "secondary_color",
+   "fieldtype": "Color",
+   "label": "Secondary Color",
+   "default": "#64748b",
+   "description": "Secondary color for text and borders"
+  },
+  {
+   "fieldname": "column_break_ui1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enable_dark_mode",
+   "fieldtype": "Check",
+   "label": "Enable Dark Mode",
+   "description": "Allow users to switch to dark mode"
+  },
+  {
+   "fieldname": "enable_animations",
+   "fieldtype": "Check",
+   "label": "Enable Animations",
+   "default": 1,
+   "description": "Enable smooth animations and transitions"
+  },
+  {
+   "fieldname": "enable_sound_effects",
+   "fieldtype": "Check",
+   "label": "Enable Sound Effects",
+   "description": "Enable sound feedback for actions"
+  },
+  {
+   "fieldname": "column_break_ui2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dashboard_layout",
+   "fieldtype": "Select",
+   "label": "Dashboard Layout",
+   "options": "Grid\nList\nCards",
+   "default": "Cards",
+   "description": "Default layout for dashboard components"
+  },
+  {
+   "fieldname": "sidebar_position",
+   "fieldtype": "Select",
+   "label": "Sidebar Position",
+   "options": "Left\nRight\nHidden",
+   "default": "Left",
+   "description": "Position of the navigation sidebar"
+  },
+  {
+   "fieldname": "enable_breadcrumbs",
+   "fieldtype": "Check",
+   "label": "Enable Breadcrumbs",
+   "default": 1,
+   "description": "Show navigation breadcrumbs"
+  },
+  {
+   "fieldname": "feature_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Feature Settings"
+  },
+  {
+   "fieldname": "enable_notifications",
+   "fieldtype": "Check",
+   "label": "Enable Notifications",
+   "default": 1,
+   "description": "Enable in-app notifications"
+  },
+  {
+   "fieldname": "enable_email_alerts",
+   "fieldtype": "Check",
+   "label": "Enable Email Alerts",
+   "default": 1,
+   "description": "Send email notifications for important events"
+  },
+  {
+   "fieldname": "enable_sms_alerts",
+   "fieldtype": "Check",
+   "label": "Enable SMS Alerts",
+   "description": "Send SMS notifications for critical events"
+  },
+  {
+   "fieldname": "column_break_feat1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enable_audit_log",
+   "fieldtype": "Check",
+   "label": "Enable Audit Log",
+   "default": 1,
+   "description": "Track all user actions for security and compliance"
+  },
+  {
+   "fieldname": "enable_data_export",
+   "fieldtype": "Check",
+   "label": "Enable Data Export",
+   "default": 1,
+   "description": "Allow users to export data in various formats"
+  },
+  {
+   "fieldname": "enable_backup_reminders",
+   "fieldtype": "Check",
+   "label": "Enable Backup Reminders",
+   "default": 1,
+   "description": "Show reminders for regular data backups"
+  },
+  {
+   "fieldname": "column_break_feat2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enable_advanced_reporting",
+   "fieldtype": "Check",
+   "label": "Enable Advanced Reporting",
+   "default": 1,
+   "description": "Enable advanced analytics and reporting features"
+  },
+  {
+   "fieldname": "enable_analytics_dashboard",
+   "fieldtype": "Check",
+   "label": "Enable Analytics Dashboard",
+   "default": 1,
+   "description": "Show detailed analytics on dashboard"
+  },
+  {
+   "fieldname": "enable_performance_monitoring",
+   "fieldtype": "Check",
+   "label": "Enable Performance Monitoring",
+   "description": "Monitor application performance and user experience"
+  },
+  {
+   "fieldname": "security_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Security Settings"
+  },
+  {
+   "fieldname": "session_timeout_minutes",
+   "fieldtype": "Int",
+   "label": "Session Timeout (Minutes)",
+   "default": 60,
+   "description": "Automatically log out users after inactivity"
+  },
+  {
+   "fieldname": "max_login_attempts",
+   "fieldtype": "Int",
+   "label": "Max Login Attempts",
+   "default": 5,
+   "description": "Lock account after failed login attempts"
+  },
+  {
+   "fieldname": "require_password_change",
+   "fieldtype": "Check",
+   "label": "Require Password Change",
+   "description": "Force users to change passwords periodically"
+  },
+  {
+   "fieldname": "column_break_sec1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enable_two_factor_auth",
+   "fieldtype": "Check",
+   "label": "Enable Two Factor Authentication",
+   "description": "Require additional verification for login"
+  },
+  {
+   "fieldname": "enable_login_logging",
+   "fieldtype": "Check",
+   "label": "Enable Login Logging",
+   "default": 1,
+   "description": "Log all login attempts for security monitoring"
+  },
+  {
+   "fieldname": "enable_api_rate_limiting",
+   "fieldtype": "Check",
+   "label": "Enable API Rate Limiting",
+   "default": 1,
+   "description": "Prevent API abuse with rate limiting"
+  },
+  {
+   "fieldname": "column_break_sec2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "password_expiry_days",
+   "fieldtype": "Int",
+   "label": "Password Expiry (Days)",
+   "default": 90,
+   "description": "Days after which passwords expire"
+  },
+  {
+   "fieldname": "min_password_length",
+   "fieldtype": "Int",
+   "label": "Minimum Password Length",
+   "default": 8,
+   "description": "Minimum required password length"
+  },
+  {
+   "fieldname": "require_special_characters",
+   "fieldtype": "Check",
+   "label": "Require Special Characters",
+   "default": 1,
+   "description": "Require special characters in passwords"
+  },
+  {
+   "fieldname": "mobile_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Mobile Settings"
+  },
+  {
+   "fieldname": "enable_pwa",
+   "fieldtype": "Check",
+   "label": "Enable PWA",
+   "default": 1,
+   "description": "Enable Progressive Web App features"
+  },
+  {
+   "fieldname": "enable_offline_mode",
+   "fieldtype": "Check",
+   "label": "Enable Offline Mode",
+   "default": 1,
+   "description": "Allow app to work offline with data sync"
+  },
+  {
+   "fieldname": "enable_push_notifications",
+   "fieldtype": "Check",
+   "label": "Enable Push Notifications",
+   "default": 1,
+   "description": "Send push notifications to mobile devices"
+  },
+  {
+   "fieldname": "column_break_mob1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mobile_theme",
+   "fieldtype": "Select",
+   "label": "Mobile Theme",
+   "options": "Light\nDark\nAuto",
+   "default": "Auto",
+   "description": "Theme preference for mobile devices"
+  },
+  {
+   "fieldname": "enable_biometric_login",
+   "fieldtype": "Check",
+   "label": "Enable Biometric Login",
+   "description": "Allow fingerprint/face recognition login"
+  },
+  {
+   "fieldname": "sync_frequency_minutes",
+   "fieldtype": "Int",
+   "label": "Sync Frequency (Minutes)",
+   "default": 15,
+   "description": "How often to sync data in mobile app"
+  },
+  {
+   "fieldname": "integration_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Integration Settings"
+  },
+  {
+   "fieldname": "enable_api_access",
+   "fieldtype": "Check",
+   "label": "Enable API Access",
+   "default": 1,
+   "description": "Allow external API access"
+  },
+  {
+   "fieldname": "api_rate_limit",
+   "fieldtype": "Int",
+   "label": "API Rate Limit (per minute)",
+   "default": 100,
+   "description": "Maximum API calls per minute per user"
+  },
+  {
+   "fieldname": "enable_webhooks",
+   "fieldtype": "Check",
+   "label": "Enable Webhooks",
+   "description": "Allow webhooks for real-time data updates"
+  },
+  {
+   "fieldname": "column_break_int1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enable_third_party_sync",
+   "fieldtype": "Check",
+   "label": "Enable Third Party Sync",
+   "description": "Allow synchronization with external systems"
+  },
+  {
+   "fieldname": "backup_provider",
+   "fieldtype": "Select",
+   "label": "Backup Provider",
+   "options": "Local\nGoogle Drive\nDropbox\nAWS S3\nAzure",
+   "default": "Local",
+   "description": "Cloud storage provider for backups"
+  },
+  {
+   "fieldname": "cloud_storage_enabled",
+   "fieldtype": "Check",
+   "label": "Cloud Storage Enabled",
+   "description": "Enable cloud storage for documents and files"
+  },
+  {
+   "fieldname": "demo_schedule_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Demo Schedule Details"
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "label": "Subject"
+  },
+  {
+   "fieldname": "task_type",
+   "fieldtype": "Link",
+   "label": "Task Type",
+   "options": "Task Type"
+  },
+  {
+   "fieldname": "column_break_rutn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "minimal_duration",
+   "fieldtype": "Int",
+   "label": "Minimal Duration"
+  },
+  {
+   "fieldname": "escalation_duration",
+   "fieldtype": "Int",
+   "label": "Escalation Duration"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-23 12:40:56.440831",
+ "modified": "2025-07-24 06:05:00.000000",
  "modified_by": "Administrator",
  "module": "E Mart",
  "name": "E-mart Settings",
