@@ -512,16 +512,22 @@ def get_purchase_invoices(filters=None):
 		else:
 			filters = {}
 
-		# Build query
+		# Build query with parameterized conditions
 		conditions = []
+		params = []
+
 		if filters.get("supplier"):
-			conditions.append(f"supplier = '{filters['supplier']}'")
+			conditions.append("supplier = %s")
+			params.append(filters["supplier"])
 		if filters.get("from_date"):
-			conditions.append(f"posting_date >= '{filters['from_date']}'")
+			conditions.append("posting_date >= %s")
+			params.append(filters["from_date"])
 		if filters.get("to_date"):
-			conditions.append(f"posting_date <= '{filters['to_date']}'")
+			conditions.append("posting_date <= %s")
+			params.append(filters["to_date"])
 		if filters.get("status"):
-			conditions.append(f"status = '{filters['status']}'")
+			conditions.append("status = %s")
+			params.append(filters["status"])
 
 		where_clause = " AND ".join(conditions) if conditions else "1=1"
 
@@ -536,6 +542,7 @@ def get_purchase_invoices(filters=None):
             ORDER BY posting_date DESC
             LIMIT 50
         """,
+			params,
 			as_dict=True,
 		)
 
@@ -588,16 +595,22 @@ def get_sales_invoices(filters=None):
 		else:
 			filters = {}
 
-		# Build query
+		# Build query with parameterized conditions
 		conditions = []
+		params = []
+
 		if filters.get("customer"):
-			conditions.append(f"customer = '{filters['customer']}'")
+			conditions.append("customer = %s")
+			params.append(filters["customer"])
 		if filters.get("from_date"):
-			conditions.append(f"posting_date >= '{filters['from_date']}'")
+			conditions.append("posting_date >= %s")
+			params.append(filters["from_date"])
 		if filters.get("to_date"):
-			conditions.append(f"posting_date <= '{filters['to_date']}'")
+			conditions.append("posting_date <= %s")
+			params.append(filters["to_date"])
 		if filters.get("status"):
-			conditions.append(f"status = '{filters['status']}'")
+			conditions.append("status = %s")
+			params.append(filters["status"])
 
 		where_clause = " AND ".join(conditions) if conditions else "1=1"
 
@@ -611,6 +624,7 @@ def get_sales_invoices(filters=None):
             ORDER BY posting_date DESC
             LIMIT 50
         """,
+			params,
 			as_dict=True,
 		)
 
@@ -661,15 +675,20 @@ def get_inventory_items(filters=None):
 		else:
 			filters = {}
 
-		# Build query
+		# Build query with parameterized conditions
 		conditions = ["is_stock_item = 1"]
+		params = []
+
 		if filters.get("item_group"):
-			conditions.append(f"item_group = '{filters['item_group']}'")
+			conditions.append("item_group = %s")
+			params.append(filters["item_group"])
 		if filters.get("brand"):
-			conditions.append(f"brand = '{filters['brand']}'")
+			conditions.append("brand = %s")
+			params.append(filters["brand"])
 		if filters.get("search"):
 			search_term = f"%{filters['search']}%"
-			conditions.append(f"(item_name LIKE '{search_term}' OR item_code LIKE '{search_term}')")
+			conditions.append("(item_name LIKE %s OR item_code LIKE %s)")
+			params.extend([search_term, search_term])
 
 		where_clause = " AND ".join(conditions)
 
@@ -685,6 +704,7 @@ def get_inventory_items(filters=None):
             ORDER BY item_name
             LIMIT 100
         """,
+			params,
 			as_dict=True,
 		)
 
@@ -1271,11 +1291,14 @@ def get_series_count(series_type):
 def get_sales_summary_report(filters):
 	"""Get sales summary report"""
 	conditions = ["docstatus = 1"]
+	params = []
 
 	if filters.get("from_date"):
-		conditions.append(f"posting_date >= '{filters['from_date']}'")
+		conditions.append("posting_date >= %s")
+		params.append(filters["from_date"])
 	if filters.get("to_date"):
-		conditions.append(f"posting_date <= '{filters['to_date']}'")
+		conditions.append("posting_date <= %s")
+		params.append(filters["to_date"])
 
 	where_clause = " AND ".join(conditions)
 
@@ -1289,6 +1312,7 @@ def get_sales_summary_report(filters):
         GROUP BY customer
         ORDER BY total_amount DESC
     """,
+		params,
 		as_dict=True,
 	)
 
@@ -1298,11 +1322,14 @@ def get_sales_summary_report(filters):
 def get_purchase_summary_report(filters):
 	"""Get purchase summary report"""
 	conditions = ["docstatus = 1"]
+	params = []
 
 	if filters.get("from_date"):
-		conditions.append(f"posting_date >= '{filters['from_date']}'")
+		conditions.append("posting_date >= %s")
+		params.append(filters["from_date"])
 	if filters.get("to_date"):
-		conditions.append(f"posting_date <= '{filters['to_date']}'")
+		conditions.append("posting_date <= %s")
+		params.append(filters["to_date"])
 
 	where_clause = " AND ".join(conditions)
 
@@ -1316,6 +1343,7 @@ def get_purchase_summary_report(filters):
         GROUP BY supplier
         ORDER BY total_amount DESC
     """,
+		params,
 		as_dict=True,
 	)
 
@@ -1325,9 +1353,11 @@ def get_purchase_summary_report(filters):
 def get_inventory_summary_report(filters):
 	"""Get inventory summary report"""
 	conditions = ["is_stock_item = 1"]
+	params = []
 
 	if filters.get("item_group"):
-		conditions.append(f"item_group = '{filters['item_group']}'")
+		conditions.append("item_group = %s")
+		params.append(filters["item_group"])
 
 	where_clause = " AND ".join(conditions)
 
@@ -1341,6 +1371,7 @@ def get_inventory_summary_report(filters):
         WHERE {where_clause}
         ORDER BY available_qty ASC
     """,
+		params,
 		as_dict=True,
 	)
 
